@@ -718,10 +718,11 @@
 
   function syncTemplatePreviewTransform() {
     if (!templatePreviewImg) return;
-    const offsetX = viewOffsetX / DPR;
-    const offsetY = viewOffsetY / DPR;
+    const { pad } = getTemplateRect();
+    const offsetX = (viewOffsetX + (viewScale - 1) * pad) / DPR;
+    const offsetY = (viewOffsetY + (viewScale - 1) * pad) / DPR;
     templatePreviewImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${viewScale})`;
-    templatePreviewImg.style.transformOrigin = "center";
+    templatePreviewImg.style.transformOrigin = "0 0";
   }
 
   function clampViewOffset() {

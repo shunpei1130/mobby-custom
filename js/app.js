@@ -42,6 +42,7 @@ const userBadgeLabel = document.getElementById("userBadgeLabel");
 const canvas = document.getElementById("designCanvas");
 const templatePreviewImg = document.querySelector(".templatePreview img");
 const canvasModeToggle = document.getElementById("canvasModeToggle");
+const canvasWrap = document.querySelector(".canvasWrap");
 const btnModeMove = document.getElementById("btnModeMove");
 const btnModeDraw = document.getElementById("btnModeDraw");
 const templateSelect = document.getElementById("templateSelect");
@@ -632,6 +633,15 @@ document.addEventListener("pointerdown", (e) => {
   const drawOpen = drawMenu?.classList.contains("isOpen");
   if (!stickerOpen && !drawOpen) return;
   if (stickerMenu?.contains(e.target) || drawMenu?.contains(e.target)) return;
+  if (canvasWrap?.contains(e.target)) {
+    panelStickerBtn?.classList.remove("active");
+    panelDrawBtn?.classList.remove("active");
+    stickerMenu?.classList.remove("isOpen");
+    drawMenu?.classList.remove("isOpen");
+    activeAdjustPanel = null;
+    setCanvasModeVisible(drawModeUiEnabled);
+    return;
+  }
   panelStickerBtn?.classList.remove("active");
   panelDrawBtn?.classList.remove("active");
   stickerMenu?.classList.remove("isOpen");
