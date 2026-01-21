@@ -78,7 +78,11 @@ const toolEraser = document.getElementById("toolEraser");
 const publishStatus = document.getElementById("publishStatus");
 const mobileMq = window.matchMedia("(max-width: 900px)");
 let isCanvasInteracting = false;
-let visualViewportBaseScale = null;
+const viewportMeta = document.querySelector('meta[name="viewport"]');
+const baseViewportContent = viewportMeta?.getAttribute("content") || "width=device-width,initial-scale=1";
+const lockedViewportContent = baseViewportContent
+  .replace(/,\s*maximum-scale=[^,]+/g, "")
+  .concat(",maximum-scale=1");
 
 function setCanvasInteracting(next) {
   if (!mobileMq.matches) return;
@@ -92,23 +96,21 @@ function setCanvasInteracting(next) {
 canvas?.addEventListener("touchstart", () => setCanvasInteracting(true), { passive: true });
 canvas?.addEventListener("touchend", () => setCanvasInteracting(false));
 canvas?.addEventListener("touchcancel", () => setCanvasInteracting(false));
-if (window.visualViewport) {
-  visualViewportBaseScale = window.visualViewport.scale || 1;
-  window.visualViewport.addEventListener("resize", () => {
-    const vv = window.visualViewport;
-    if (!vv) return;
-    if (vv.scale > visualViewportBaseScale && document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) {
-      return;
-    }
-    if (Math.abs((vv.scale || 1) - visualViewportBaseScale) < 0.01) return;
+
+function resetViewportScale() {
+  if (!viewportMeta) return;
+  if (window.visualViewport && window.visualViewport.scale <= 1.01) return;
+  viewportMeta.setAttribute("content", lockedViewportContent);
+  setTimeout(() => {
+    viewportMeta.setAttribute("content", baseViewportContent);
     window.scrollTo(0, 0);
-    document.documentElement.style.zoom = "1";
-    document.body?.style.setProperty("zoom", "1");
-    if (vv.scale && Math.abs(vv.scale - 1) > 0.01) {
-      try { document.body?.style.setProperty("transform", "scale(1)"); } catch (_) {}
-    }
-  });
+  }, 60);
 }
+
+document.addEventListener("focusout", (e) => {
+  if (!e?.target || !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  resetViewportScale();
+});
 
 async function createThumbDataUrl(sourceCanvas, size = 320) {
   const canvas = document.createElement("canvas");
