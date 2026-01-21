@@ -48,44 +48,51 @@
                   <div class="drawHeader">
                     <button id="btnDrawAdd" class="btn primary" type="button">追加して描く</button>
                   </div>
-                  <div class="row">
-                    <label class="label" for="toolPen">ツール</label>
-                    <span class="toolGroup">
-                      <button id="toolPen" class="btn active" type="button">ペン</button>
-                      <button id="toolEraser" class="btn" type="button">消しゴム</button>
-                    </span>
-
-                    <label class="label" for="penColor">ペン色</label>
-                    <input id="penColor" class="input" type="color" value="#3a2f26" />
-
-                    <label class="label" for="penSize">太さ</label>
-                    <input id="penSize" class="input" type="range" min="1" max="40" value="6" />
-                    <span id="penSizeValue" class="muted" style="min-width:36px;text-align:right;">6</span>
-
-                    <button id="btnClearDraw" class="btn" type="button">手書きを消す</button>
+                  <div class="drawGroup">
+                    <div class="drawGroupTitle">ツール</div>
+                    <div class="row">
+                      <span class="toolGroup">
+                        <button id="toolPen" class="btn active" type="button">ペン</button>
+                        <button id="toolEraser" class="btn" type="button">消しゴム</button>
+                      </span>
+                      <button id="btnClearDraw" class="btn" type="button">手書きを消す</button>
+                    </div>
                   </div>
 
-                  <div class="row">
-                    <label class="label" for="drawEffect">エフェクト</label>
-                    <select id="drawEffect" class="select">
-                      <option value="none">なし</option>
-                      <option value="shadow">シャドウ</option>
-                      <option value="glow">グロウ</option>
-                    </select>
+                  <div class="drawGroup">
+                    <div class="drawGroupTitle">ペン設定</div>
+                    <div class="row">
+                      <label class="label" for="penColor">ペン色</label>
+                      <input id="penColor" class="input" type="color" value="#3a2f26" />
 
-                    <label class="label" for="drawEffectColor">効果色</label>
-                    <input id="drawEffectColor" class="input" type="color" value="#00f5ff" />
+                      <label class="label" for="penSize">太さ</label>
+                      <input id="penSize" class="input" type="range" min="1" max="40" value="6" />
+                      </div>
+                  </div>
 
-                    <label class="label" for="drawEffectBlur">強さ</label>
-                    <input id="drawEffectBlur" class="input" type="range" min="0" max="60" value="18" />
+                  <div class="drawGroup">
+                    <div class="drawGroupTitle">エフェクト</div>
+                    <div class="row">
+                      <label class="label" for="drawEffect">種類</label>
+                      <select id="drawEffect" class="select">
+                        <option value="none">なし</option>
+                        <option value="shadow">シャドウ</option>
+                        <option value="glow">グロウ</option>
+                      </select>
 
-                    <label class="label" for="drawStrokeColor">枠色</label>
-                    <input id="drawStrokeColor" class="input" type="color" value="#000000" />
+                      <label class="label" for="drawEffectColor">効果色</label>
+                      <input id="drawEffectColor" class="input" type="color" value="#00f5ff" />
 
-                    <label class="label" for="drawStrokeWidth">枠太さ</label>
-                    <input id="drawStrokeWidth" class="input" type="range" min="0" max="12" value="0" />
-                    <span id="drawStrokeWidthValue" class="muted" style="min-width:36px;text-align:right;">0</span>
-                    <span class="rowBreak" aria-hidden="true"></span>
+                      <label class="label" for="drawEffectBlur">強さ</label>
+                      <input id="drawEffectBlur" class="input" type="range" min="0" max="60" value="18" />
+
+                      <label class="label" for="drawStrokeColor">枠色</label>
+                      <input id="drawStrokeColor" class="input" type="color" value="#000000" />
+
+                      <label class="label" for="drawStrokeWidth">枠太さ</label>
+                      <input id="drawStrokeWidth" class="input" type="range" min="0" max="12" value="0" />
+                      <span class="rowBreak" aria-hidden="true"></span>
+                    </div>
                   </div>
                 </div>
               </div>

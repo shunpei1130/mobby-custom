@@ -579,6 +579,7 @@ function setAdjustPanel(panel) {
   panelStickerBtn?.classList.toggle("active", isSticker);
   drawMenu?.classList.toggle("isOpen", isDraw);
   stickerMenu?.classList.toggle("isOpen", isSticker);
+  if (isSticker) stickerMenu?.classList.remove("isLocked");
   if (isDraw) {
     setDrawReady(false);
   } else {
@@ -593,6 +594,7 @@ panelStickerBtn?.addEventListener("click", () => setAdjustPanel("sticker"));
 assetGrid?.addEventListener("assetadd", () => {
   panelStickerBtn?.classList.remove("active");
   stickerMenu?.classList.remove("isOpen");
+  stickerMenu?.classList.add("isLocked");
   activeAdjustPanel = null;
   editor.resetAssetSelection?.();
 });

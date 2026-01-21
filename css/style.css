@@ -217,6 +217,19 @@ body{
   background:rgba(255,255,255,.92);
   border-bottom:1px solid var(--border);
 }
+.drawGroup{
+  border:1px dashed rgba(121,93,72,.22);
+  border-radius:14px;
+  padding:10px;
+  margin-bottom:10px;
+  background:rgba(255,255,255,.65);
+}
+.drawGroupTitle{
+  font-size:12px;
+  font-weight:700;
+  color:var(--muted);
+  margin-bottom:6px;
+}
 .toolGroup{
   display:inline-flex;
   gap:6px;
@@ -227,6 +240,10 @@ body{
 .drawMenu:hover .drawPanel,
 .drawMenu.isOpen .drawPanel{
   display:block;
+}
+.stickerMenu.isLocked .stickerPanel,
+.stickerMenu.isLocked:hover .stickerPanel{
+  display:none !important;
 }
 .drawMenu:hover .drawPanel,
 .drawMenu.isOpen .drawPanel{
