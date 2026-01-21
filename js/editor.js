@@ -709,7 +709,7 @@
   }
 
   function canEditObjects() {
-    return objectEditEnabled && drawMode !== "draw";
+    return objectEditEnabled;
   }
 
   function canZoomView() {
@@ -902,7 +902,15 @@
       draw();
       return;
     }
-    if (drawMode === "draw") {
+    const currentSelection = selectedId ? objects.find(v => v.id === selectedId) : null;
+    const hitHandle = currentSelection && currentSelection.type !== "path"
+      && (hitDeleteHandle(x, y, currentSelection)
+        || hitScaleHandle(x, y, currentSelection)
+        || !!getRotationRing(x, y, currentSelection));
+    const hitId = hitTest(x, y);
+    const hitObject = !!hitId || !!hitHandle;
+    objectEditEnabled = hitObject;
+    if (drawMode === "draw" && !hitObject) {
       if (activePointers.size > 1) {
         return;
       }
@@ -1509,6 +1517,7 @@
     const nextMode = mode === "draw" ? "draw" : "select";
     if (drawMode === nextMode) return;
     drawMode = nextMode;
+    objectEditEnabled = false;
     selectedId = null;
     drag = null;
     rotateDrag = null;
