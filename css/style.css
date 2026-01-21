@@ -279,6 +279,24 @@ body{
 }
 canvas{display:block;width:100%;height:auto;touch-action:pan-y}
 .canvasInteracting{overflow:hidden}
+.canvasModeToggle{
+  position:absolute;
+  left:8px;
+  top:8px;
+  display:flex;
+  gap:6px;
+  padding:4px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:rgba(255,255,255,.88);
+  z-index:4;
+}
+.modeBtn{
+  padding:4px 10px;
+  height:26px;
+  border-radius:999px;
+  font-size:12px;
+}
 
 .assetPicker{
   display:flex;

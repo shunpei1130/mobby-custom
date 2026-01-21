@@ -40,6 +40,9 @@ const userBadge = document.getElementById("userBadge");
 const userBadgeLabel = document.getElementById("userBadgeLabel");
 
 const canvas = document.getElementById("designCanvas");
+const canvasModeToggle = document.getElementById("canvasModeToggle");
+const btnModeMove = document.getElementById("btnModeMove");
+const btnModeDraw = document.getElementById("btnModeDraw");
 const templateSelect = document.getElementById("templateSelect");
 const assetGrid = document.getElementById("assetGrid");
 const btnClear = document.getElementById("btnClear");
@@ -522,21 +525,41 @@ function updatePenOptions() {
   });
 }
 
-function clearDrawToolSelection() {
-  toolPen?.classList.remove("active");
-  toolEraser?.classList.remove("active");
-}
-
 function isDrawToolActive() {
   return toolPen?.classList.contains("active") || toolEraser?.classList.contains("active");
 }
 
-function setDrawTool(tool) {
+function updateCanvasModeButtons(mode) {
+  const isDraw = mode === "draw";
+  btnModeDraw?.classList.toggle("active", isDraw);
+  btnModeMove?.classList.toggle("active", !isDraw);
+}
+
+function setCanvasModeVisible(show) {
+  canvasModeToggle?.classList.toggle("hidden", !show);
+}
+
+function setDrawToolInternal(tool) {
   const isPen = tool === "pen";
   toolPen?.classList.toggle("active", isPen);
   toolEraser?.classList.toggle("active", !isPen);
   editor.setDrawTool?.(isPen ? "pen" : "eraser");
-  editor.setDrawMode("draw");
+}
+
+function setCanvasMode(mode) {
+  const nextMode = mode === "draw" ? "draw" : "move";
+  updateCanvasModeButtons(nextMode);
+  if (nextMode === "draw") {
+    if (!isDrawToolActive()) setDrawToolInternal("pen");
+    editor.setDrawMode("draw");
+  } else {
+    editor.setDrawMode("select");
+  }
+}
+
+function setDrawTool(tool) {
+  setDrawToolInternal(tool);
+  setCanvasMode("draw");
 }
 
 penColor?.addEventListener("input", updatePenOptions);
@@ -549,6 +572,8 @@ drawStrokeWidth?.addEventListener("input", updatePenOptions);
 btnClearDraw?.addEventListener("click", () => editor.clearDraw());
 toolPen?.addEventListener("click", () => setDrawTool("pen"));
 toolEraser?.addEventListener("click", () => setDrawTool("eraser"));
+btnModeMove?.addEventListener("click", () => setCanvasMode("move"));
+btnModeDraw?.addEventListener("click", () => setCanvasMode("draw"));
 
 editor.setDrawMode("select");
 updatePenOptions();
@@ -561,12 +586,8 @@ function closeAdjustPanel() {
   panelStickerBtn?.classList.remove("active");
   drawMenu?.classList.remove("isOpen");
   stickerMenu?.classList.remove("isOpen");
-  if (isDrawToolActive()) {
-    editor.setDrawMode("draw");
-  } else {
-    editor.setDrawMode("select");
-    clearDrawToolSelection();
-  }
+  setCanvasModeVisible(drawModeUiEnabled);
+  if (!drawModeUiEnabled) setCanvasMode("move");
   editor.resetAssetSelection?.();
 }
 
@@ -583,11 +604,15 @@ function setAdjustPanel(panel) {
   drawMenu?.classList.toggle("isOpen", isDraw);
   stickerMenu?.classList.toggle("isOpen", isSticker);
   if (isSticker) stickerMenu?.classList.remove("isLocked");
-  editor.setDrawMode("select");
-  if (isDraw && isDrawToolActive()) {
-    editor.setDrawMode("draw");
+  if (isDraw) {
+    drawModeUiEnabled = true;
+    setCanvasModeVisible(true);
+    setCanvasMode("draw");
+  } else {
+    drawModeUiEnabled = false;
+    setCanvasModeVisible(false);
+    setCanvasMode("move");
   }
-  if (!isDraw) clearDrawToolSelection();
   if (isSticker) editor.resetAssetSelection?.();
 }
 
@@ -610,12 +635,8 @@ document.addEventListener("pointerdown", (e) => {
   stickerMenu?.classList.remove("isOpen");
   drawMenu?.classList.remove("isOpen");
   activeAdjustPanel = null;
-  if (isDrawToolActive()) {
-    editor.setDrawMode("draw");
-  } else {
-    editor.setDrawMode("select");
-    clearDrawToolSelection();
-  }
+  setCanvasModeVisible(drawModeUiEnabled);
+  if (!drawModeUiEnabled) setCanvasMode("move");
   editor.resetAssetSelection?.();
 });
 
@@ -631,6 +652,7 @@ let timelineFollowingDocs = [];
 let timelineFilterValue = "all";
 let invitePrompted = false;
 let activeAdjustPanel = null;
+let drawModeUiEnabled = false;
 
 tabDesign?.addEventListener("click", showDesign);
 tabGallery?.addEventListener("click", async () => {
