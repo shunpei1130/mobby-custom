@@ -159,6 +159,7 @@
     viewOffsetY = Number.isFinite(next.viewOffsetY) ? next.viewOffsetY : 0;
     clampViewOffset();
     syncTemplatePreviewTransform();
+    const defaultCenter = getTemplateCenter();
     selectedId = null;
     objects = [];
 
@@ -182,8 +183,8 @@
             img,
             name: o.name || "",
             src: o.src || o.url,
-            x: Number.isFinite(o.x) ? o.x : canvas.width / 2,
-            y: Number.isFinite(o.y) ? o.y : canvas.height / 2,
+            x: Number.isFinite(o.x) ? o.x : defaultCenter.x,
+            y: Number.isFinite(o.y) ? o.y : defaultCenter.y,
             s: Number.isFinite(o.s) ? o.s : 0.35,
             r: Number.isFinite(o.r) ? o.r : 0,
             opacity: Number.isFinite(o.opacity) ? o.opacity : 1,
@@ -219,8 +220,8 @@
           fontFamily: o.fontFamily || "Noto Sans JP",
           size: Number.isFinite(o.size) ? o.size : 36,
           color: o.color || "#ffffff",
-          x: Number.isFinite(o.x) ? o.x : canvas.width / 2,
-          y: Number.isFinite(o.y) ? o.y : canvas.height / 2,
+          x: Number.isFinite(o.x) ? o.x : defaultCenter.x,
+          y: Number.isFinite(o.y) ? o.y : defaultCenter.y,
           s: Number.isFinite(o.s) ? o.s : 1,
           r: Number.isFinite(o.r) ? o.r : 0,
           opacity: Number.isFinite(o.opacity) ? o.opacity : 1,
@@ -243,6 +244,7 @@
   }
 
   function addAsset(assetUrl, name) {
+    const center = getTemplateCenter();
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
@@ -253,8 +255,8 @@
         img,
         name,
         src: assetUrl,
-        x: canvas.width / 2,
-        y: canvas.height / 2,
+        x: center.x,
+        y: center.y,
         s: 0.35,
         r: 0,
         opacity: 1,
@@ -273,6 +275,7 @@
     if (!t) return;
     const effect = normalizeEffectOptions(style);
     const id = crypto.randomUUID();
+    const center = getTemplateCenter();
     objects.push({
       type: "text",
       id,
@@ -280,8 +283,8 @@
       fontFamily,
       size,
       color: style.color || "#ffffff",
-      x: canvas.width / 2,
-      y: canvas.height / 2,
+      x: center.x,
+      y: center.y,
       s: 1,
       r: Number(style.r || 0),
       opacity: Number.isFinite(style.opacity) ? style.opacity : 1,
@@ -539,6 +542,12 @@
     }
     ctx.restore();
 
+    ctx.restore();
+
+    ctx.save();
+    ctx.translate(viewOffsetX, viewOffsetY);
+    ctx.scale(viewScale, viewScale);
+
     for (const o of objects) {
       if (o.type === "path") continue;
       ctx.save();
@@ -584,12 +593,12 @@
     }
 
     if (selectedId && canEditObjects()) {
-      const o = objects.find(v => v.id === selectedId);
-      if (o && o.type !== "path") {
-        const bounds = getObjectBounds(o);
+      const selected = objects.find(v => v.id === selectedId);
+      if (selected && selected.type !== "path") {
+        const bounds = getObjectBounds(selected);
         const ring = Math.max(26 * DPR, Math.max(bounds.w, bounds.h) * 0.5 + 16 * DPR);
         ctx.save();
-        ctx.translate(o.x, o.y);
+        ctx.translate(selected.x, selected.y);
         ctx.strokeStyle = "rgba(106,168,255,.55)";
         ctx.lineWidth = Math.max(2, 2 * DPR);
         ctx.setLineDash([6 * DPR, 6 * DPR]);
@@ -603,7 +612,7 @@
         ctx.fill();
         ctx.restore();
 
-        const scaleHandle = getScaleHandle(o);
+        const scaleHandle = getScaleHandle(selected);
         ctx.save();
         ctx.fillStyle = "rgba(106,168,255,.9)";
         ctx.strokeStyle = "rgba(255,255,255,.9)";
@@ -614,8 +623,8 @@
         ctx.stroke();
         ctx.restore();
       }
-      if (o && o.type === "img") {
-        const handle = getDeleteHandle(o);
+      if (selected && selected.type === "img") {
+        const handle = getDeleteHandle(selected);
         ctx.save();
         ctx.fillStyle = "rgba(28,34,48,.9)";
         ctx.strokeStyle = "rgba(255,255,255,.9)";
@@ -634,7 +643,6 @@
         ctx.restore();
       }
     }
-    ctx.restore();
     ctx.restore();
   }
 
@@ -672,6 +680,13 @@
 
   function toTemplateCoords(e) {
     return toTemplateCoordsFromPoint(e.clientX, e.clientY);
+  }
+
+  function getTemplateCenter() {
+    return {
+      x: (canvas.width / 2 - viewOffsetX) / viewScale,
+      y: (canvas.height / 2 - viewOffsetY) / viewScale
+    };
   }
 
   function getTemplateRect() {
@@ -899,23 +914,23 @@
     }
     const { x, y } = updatePointer(e);
     const screen = toCanvasScreenCoords(e);
+    const { x: tx, y: ty } = toTemplateCoords(e);
     if (maybeStartPinch()) {
       draw();
       return;
     }
     const currentSelection = selectedId ? objects.find(v => v.id === selectedId) : null;
     const hitHandle = currentSelection && currentSelection.type !== "path"
-      && (hitDeleteHandle(x, y, currentSelection)
-        || hitScaleHandle(x, y, currentSelection)
-        || !!getRotationRing(x, y, currentSelection));
-    const hitId = hitTest(x, y);
+      && (hitDeleteHandle(tx, ty, currentSelection)
+        || hitScaleHandle(tx, ty, currentSelection)
+        || !!getRotationRing(tx, ty, currentSelection));
+    const hitId = hitTest(tx, ty);
     const hitObject = !!hitId || !!hitHandle;
     objectEditEnabled = hitObject;
     if (drawMode === "draw" && !hitObject) {
       if (activePointers.size > 1) {
         return;
       }
-      const { x: tx, y: ty } = toTemplateCoords(e);
       if (drawTool === "eraser") {
         erasing = { pointerId: e.pointerId, lastX: tx, lastY: ty };
         const changed = eraseAt(tx, ty);
@@ -966,18 +981,18 @@
     }
     const current = selectedId ? objects.find(v => v.id === selectedId) : null;
     if (current && current.type !== "path") {
-      if (hitDeleteHandle(x, y, current)) {
+      if (hitDeleteHandle(tx, ty, current)) {
         objects = objects.filter(v => v.id !== current.id);
         selectedId = null;
         draw();
         pushHistory();
         return;
       }
-      if (hitScaleHandle(x, y, current)) {
+      if (hitScaleHandle(tx, ty, current)) {
         if (!isInsideDesignArea(x, y)) {
           return;
         }
-        const dist = Math.hypot(x - current.x, y - current.y);
+        const dist = Math.hypot(tx - current.x, ty - current.y);
         scaleDrag = {
           id: current.id,
           startDist: dist || 1,
@@ -990,11 +1005,11 @@
         draw();
         return;
       }
-      const ring = getRotationRing(x, y, current);
+      const ring = getRotationRing(tx, ty, current);
       if (ring) {
         rotateDrag = {
           id: current.id,
-          startAngle: Math.atan2(y - current.y, x - current.x),
+          startAngle: Math.atan2(ty - current.y, tx - current.x),
           baseRotation: current.r
         };
         drag = null;
@@ -1002,11 +1017,11 @@
         return;
       }
     }
-    const id = hitTest(x, y);
+    const id = hitTest(tx, ty);
     selectedId = id;
     if (id) {
       const o = objects.find(v => v.id === id);
-      drag = { id, dx: x - o.x, dy: y - o.y };
+      drag = { id, dx: tx - o.x, dy: ty - o.y };
       dragMoved = false;
     } else {
       drag = null;
@@ -1055,7 +1070,7 @@
     if (scaleDrag && scaleDrag.id) {
       const o = objects.find(v => v.id === scaleDrag.id);
       if (!o) return;
-      const { x, y } = toCanvasCoords(e);
+      const { x, y } = toTemplateCoords(e);
       const dist = Math.hypot(x - o.x, y - o.y);
       const nextScale = clampScale(scaleDrag.baseScale * (dist / scaleDrag.startDist));
       if (o.s !== nextScale) {
@@ -1079,7 +1094,7 @@
     if (rotateDrag && rotateDrag.id) {
       const o = objects.find(v => v.id === rotateDrag.id);
       if (!o) return;
-      const { x, y } = toCanvasCoords(e);
+      const { x, y } = toTemplateCoords(e);
       const next = Math.atan2(y - o.y, x - o.x);
       o.r = rotateDrag.baseRotation + (next - rotateDrag.startAngle);
       draw();
@@ -1099,7 +1114,7 @@
       return;
     }
     if (!drag) return;
-    const { x, y } = toCanvasCoords(e);
+    const { x, y } = toTemplateCoords(e);
     const o = objects.find(v => v.id === drag.id);
     if (!o) return;
     const nextX = x - drag.dx;
@@ -1628,6 +1643,7 @@
       return Promise.resolve(id);
     }
 
+    const defaultCenter = getTemplateCenter();
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -1652,8 +1668,8 @@
             img,
             name: opts.name || "",
             src: opts.src,
-            x: Number.isFinite(opts.x) ? opts.x : canvas.width / 2,
-            y: Number.isFinite(opts.y) ? opts.y : canvas.height / 2,
+            x: Number.isFinite(opts.x) ? opts.x : defaultCenter.x,
+            y: Number.isFinite(opts.y) ? opts.y : defaultCenter.y,
             s: Number.isFinite(opts.s) ? opts.s : 0.35,
             r: Number.isFinite(opts.r) ? opts.r : 0,
             opacity: Number.isFinite(opts.opacity) ? opts.opacity : 1,
@@ -1701,6 +1717,7 @@
       return id;
     }
 
+    const defaultCenter = getTemplateCenter();
     objects.push({
       type: "text",
       id,
@@ -1708,8 +1725,8 @@
       fontFamily: opts.fontFamily || "Noto Sans JP",
       size: Number.isFinite(opts.size) ? opts.size : 36,
       color: opts.color || "#ffffff",
-      x: Number.isFinite(opts.x) ? opts.x : canvas.width / 2,
-      y: Number.isFinite(opts.y) ? opts.y : canvas.height / 2,
+      x: Number.isFinite(opts.x) ? opts.x : defaultCenter.x,
+      y: Number.isFinite(opts.y) ? opts.y : defaultCenter.y,
       s: 1,
       r: Number.isFinite(opts.r) ? opts.r : 0,
       opacity: Number.isFinite(opts.opacity) ? opts.opacity : 1,
