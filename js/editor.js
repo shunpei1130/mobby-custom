@@ -33,12 +33,14 @@
   let erasing = null;
   let drawTool = "pen";
   let pinch = null;
+  let viewDrag = null;
   let viewScale = 1;
   let viewOffsetX = 0;
   let viewOffsetY = 0;
   const MIN_VIEW_SCALE = 0.8;
   const MAX_VIEW_SCALE = 2.6;
   const VIEW_SCALE_SNAP = 0.03;
+  const TEMPLATE_INSET_RATIO = 0.09;
   const DESIGN_INSET_RATIO = 0.08;
   const activePointers = new Map();
   const sampleSpacing = 2;
@@ -134,6 +136,8 @@
     canvas.style.height = `${cssH}px`;
     canvas.width = Math.floor(cssW * DPR);
     canvas.height = Math.floor(cssH * DPR);
+    clampViewOffset();
+    syncTemplatePreviewTransform();
     draw();
   }
 
@@ -150,9 +154,11 @@
   async function setState(state) {
     const next = state || {};
     const items = Array.isArray(next.objects) ? next.objects : [];
-    viewScale = 1;
-    viewOffsetX = 0;
-    viewOffsetY = 0;
+    viewScale = Number.isFinite(next.viewScale) ? clampViewScale(next.viewScale) : 1;
+    viewOffsetX = Number.isFinite(next.viewOffsetX) ? next.viewOffsetX : 0;
+    viewOffsetY = Number.isFinite(next.viewOffsetY) ? next.viewOffsetY : 0;
+    clampViewOffset();
+    syncTemplatePreviewTransform();
     selectedId = null;
     objects = [];
 
@@ -505,15 +511,15 @@
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const pad = canvas.width * 0.09;
-    const w = canvas.width - pad * 2;
-    const h = canvas.height - pad * 2;
+    const { pad, w, h } = getTemplateRect();
 
     ctx.save();
     ctx.beginPath();
     ctx.rect(pad, pad, w, h);
     ctx.clip();
     ctx.save();
+    ctx.translate(viewOffsetX, viewOffsetY);
+    ctx.scale(viewScale, viewScale);
     if (templateImg?.width) {
       ctx.drawImage(templateImg, pad, pad, w, h);
     } else {
@@ -522,17 +528,19 @@
     }
 
     for (const o of objects) {
-      if (o.type === "path") {
-        ctx.save();
-        ctx.globalAlpha = Number.isFinite(o.opacity) ? o.opacity : 1;
-        if (o.strokeWidth > 0) {
-          drawStroke(o.points, o.size + o.strokeWidth * 2, o.strokeColor, null);
-        }
-        drawStroke(o.points, o.size, o.color, o);
-        ctx.restore();
-        continue;
+      if (o.type !== "path") continue;
+      ctx.save();
+      ctx.globalAlpha = Number.isFinite(o.opacity) ? o.opacity : 1;
+      if (o.strokeWidth > 0) {
+        drawStroke(o.points, o.size + o.strokeWidth * 2, o.strokeColor, null);
       }
+      drawStroke(o.points, o.size, o.color, o);
+      ctx.restore();
+    }
+    ctx.restore();
 
+    for (const o of objects) {
+      if (o.type === "path") continue;
       ctx.save();
       ctx.translate(o.x, o.y);
       ctx.rotate(o.r);
@@ -628,7 +636,6 @@
     }
     ctx.restore();
     ctx.restore();
-    ctx.restore();
   }
 
   function toCanvasScreenCoordsFromPoint(clientX, clientY) {
@@ -643,12 +650,35 @@
     return toCanvasScreenCoordsFromPoint(e.clientX, e.clientY);
   }
 
+  function toCanvasCoordsFromPoint(clientX, clientY) {
+    return toCanvasScreenCoordsFromPoint(clientX, clientY);
+  }
+
   function toCanvasCoords(e) {
     const screen = toCanvasScreenCoords(e);
     return {
       x: screen.x,
       y: screen.y
     };
+  }
+
+  function toTemplateCoordsFromPoint(clientX, clientY) {
+    const screen = toCanvasScreenCoordsFromPoint(clientX, clientY);
+    return {
+      x: (screen.x - viewOffsetX) / viewScale,
+      y: (screen.y - viewOffsetY) / viewScale
+    };
+  }
+
+  function toTemplateCoords(e) {
+    return toTemplateCoordsFromPoint(e.clientX, e.clientY);
+  }
+
+  function getTemplateRect() {
+    const pad = canvas.width * TEMPLATE_INSET_RATIO;
+    const w = canvas.width - pad * 2;
+    const h = canvas.height - pad * 2;
+    return { pad, w, h, left: pad, top: pad, right: pad + w, bottom: pad + h };
   }
 
   function getDesignRect() {
@@ -686,10 +716,30 @@
     return drawMode !== "draw";
   }
 
-  function syncTemplatePreviewScale() {
+  function syncTemplatePreviewTransform() {
     if (!templatePreviewImg) return;
-    templatePreviewImg.style.transform = `scale(${viewScale})`;
+    const offsetX = viewOffsetX / DPR;
+    const offsetY = viewOffsetY / DPR;
+    templatePreviewImg.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${viewScale})`;
     templatePreviewImg.style.transformOrigin = "center";
+  }
+
+  function clampViewOffset() {
+    const { pad, w, h } = getTemplateRect();
+    const minX = (pad + w) * (1 - viewScale);
+    const maxX = pad * (1 - viewScale);
+    const minY = (pad + h) * (1 - viewScale);
+    const maxY = pad * (1 - viewScale);
+    if (minX > maxX) {
+      viewOffsetX = (pad + w / 2) * (1 - viewScale);
+    } else {
+      viewOffsetX = Math.min(maxX, Math.max(minX, viewOffsetX));
+    }
+    if (minY > maxY) {
+      viewOffsetY = (pad + h / 2) * (1 - viewScale);
+    } else {
+      viewOffsetY = Math.min(maxY, Math.max(minY, viewOffsetY));
+    }
   }
 
   function resetViewIfClose() {
@@ -697,21 +747,24 @@
     viewScale = 1;
     viewOffsetX = 0;
     viewOffsetY = 0;
-    syncTemplatePreviewScale();
-    syncTemplatePreviewScale();
+    syncTemplatePreviewTransform();
     return true;
   }
 
-  function applyViewScale(nextScale) {
+  function applyViewScale(nextScale, centerX, centerY) {
     let clamped = clampViewScale(nextScale);
     const shouldSnap = Math.abs(clamped - 1) <= VIEW_SCALE_SNAP;
     if (shouldSnap) clamped = 1;
+    const ratio = clamped / viewScale;
+    viewOffsetX = centerX - (centerX - viewOffsetX) * ratio;
+    viewOffsetY = centerY - (centerY - viewOffsetY) * ratio;
     viewScale = clamped;
     if (shouldSnap) {
       viewOffsetX = 0;
       viewOffsetY = 0;
     }
-    syncTemplatePreviewScale();
+    clampViewOffset();
+    syncTemplatePreviewTransform();
   }
 
   function maybeStartPinch() {
@@ -749,6 +802,7 @@
     scaleDrag = null;
     drawing = null;
     erasing = null;
+    viewDrag = null;
     return true;
   }
 
@@ -843,6 +897,7 @@
       canvas.style.touchAction = "none";
     }
     const { x, y } = updatePointer(e);
+    const screen = toCanvasScreenCoords(e);
     if (maybeStartPinch()) {
       draw();
       return;
@@ -851,19 +906,20 @@
       if (activePointers.size > 1) {
         return;
       }
+      const { x: tx, y: ty } = toTemplateCoords(e);
       if (drawTool === "eraser") {
-        erasing = { pointerId: e.pointerId, lastX: x, lastY: y };
-        const changed = eraseAt(x, y);
+        erasing = { pointerId: e.pointerId, lastX: tx, lastY: ty };
+        const changed = eraseAt(tx, ty);
         if (changed) draw();
         return;
       }
       const id = crypto.randomUUID();
-      drawing = { id, pointerId: e.pointerId, lastX: x, lastY: y };
+      drawing = { id, pointerId: e.pointerId, lastX: tx, lastY: ty };
       const effect = normalizeEffectOptions(penOptions);
       objects.push({
         type: "path",
         id,
-        points: [{ x, y }],
+        points: [{ x: tx, y: ty }],
         color: penOptions.color,
         size: penOptions.size,
         effect: effect.effect,
@@ -878,6 +934,15 @@
       return;
     }
     if (!canEditObjects()) {
+      if (canZoomView() && isInsideDesignArea(x, y)) {
+        viewDrag = {
+          pointerId: e.pointerId,
+          startX: screen.x,
+          startY: screen.y,
+          startOffsetX: viewOffsetX,
+          startOffsetY: viewOffsetY
+        };
+      }
       if (selectedId || drag || rotateDrag || scaleDrag || drawing || erasing) {
         selectedId = null;
         drag = null;
@@ -942,7 +1007,7 @@
 
   canvas.addEventListener("pointermove", (e) => {
     updatePointer(e);
-    if (e.pointerType === "touch" && (activePointers.size >= 2 || drawing || drag || rotateDrag || scaleDrag || pinch || erasing)) {
+    if (e.pointerType === "touch" && (activePointers.size >= 2 || drawing || drag || rotateDrag || scaleDrag || pinch || erasing || viewDrag)) {
       e.preventDefault();
     }
     if (pinch && activePointers.size === 2) {
@@ -969,6 +1034,15 @@
       }
       return;
     }
+    if (viewDrag && viewDrag.pointerId === e.pointerId) {
+      const screen = toCanvasScreenCoords(e);
+      viewOffsetX = viewDrag.startOffsetX + (screen.x - viewDrag.startX);
+      viewOffsetY = viewDrag.startOffsetY + (screen.y - viewDrag.startY);
+      clampViewOffset();
+      syncTemplatePreviewTransform();
+      draw();
+      return;
+    }
     if (scaleDrag && scaleDrag.id) {
       const o = objects.find(v => v.id === scaleDrag.id);
       if (!o) return;
@@ -982,7 +1056,7 @@
       return;
     }
     if (erasing && erasing.pointerId === e.pointerId) {
-      const { x, y } = toCanvasCoords(e);
+      const { x, y } = toTemplateCoords(e);
       const samples = sampleAlongLine(erasing.lastX, erasing.lastY, x, y, sampleSpacing * DPR);
       let changed = false;
       for (const p of samples) {
@@ -1005,7 +1079,7 @@
     if (drawing && drawing.pointerId === e.pointerId) {
       const o = objects.find(v => v.id === drawing.id);
       if (!o) return;
-      const { x, y } = toCanvasCoords(e);
+      const { x, y } = toTemplateCoords(e);
       const samples = sampleAlongLine(drawing.lastX, drawing.lastY, x, y, sampleSpacing * DPR);
       if (samples.length) {
         for (const p of samples) o.points.push(p);
@@ -1044,6 +1118,10 @@
       if (shouldSave) pushHistory();
       return;
     }
+    if (viewDrag && viewDrag.pointerId === e.pointerId) {
+      viewDrag = null;
+      return;
+    }
     if (scaleDrag) {
       scaleDrag = null;
       pushHistory();
@@ -1076,6 +1154,7 @@
     erasing = null;
     pinch = null;
     scaleDrag = null;
+    viewDrag = null;
   });
 
   canvas.addEventListener("wheel", (e) => {
@@ -1125,7 +1204,7 @@
       viewScale = 1;
       viewOffsetX = 0;
       viewOffsetY = 0;
-      syncTemplatePreviewScale();
+      syncTemplatePreviewTransform();
       draw();
     }
     const markCanvas = document.createElement("canvas");
@@ -1154,7 +1233,7 @@
       viewScale = prevViewScale;
       viewOffsetX = prevViewOffsetX;
       viewOffsetY = prevViewOffsetY;
-      syncTemplatePreviewScale();
+      syncTemplatePreviewTransform();
       draw();
     }
     return blob;
@@ -1419,6 +1498,9 @@
       template: templateUrl,
       canvasW: canvas.width,
       canvasH: canvas.height,
+      viewScale: Number.isFinite(viewScale) ? viewScale : 1,
+      viewOffsetX: Number.isFinite(viewOffsetX) ? viewOffsetX : 0,
+      viewOffsetY: Number.isFinite(viewOffsetY) ? viewOffsetY : 0,
       objects: safeObjects
     };
   }
@@ -1435,6 +1517,7 @@
     erasing = null;
     pinch = null;
     touchPinch = null;
+    viewDrag = null;
     activePointers.clear();
     dragMoved = false;
     draw();
