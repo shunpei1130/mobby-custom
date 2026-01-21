@@ -70,6 +70,13 @@ const drawStrokeWidthValue = document.getElementById("drawStrokeWidthValue");
 const toolPen = document.getElementById("toolPen");
 const toolEraser = document.getElementById("toolEraser");
 const btnDrawAdd = document.getElementById("btnDrawAdd");
+const templateZoomModal = document.getElementById("templateZoomModal");
+const templateZoomClose = document.getElementById("templateZoomClose");
+const templateZoomImg = document.getElementById("templateZoomImg");
+const templateZoomIn = document.getElementById("templateZoomIn");
+const templateZoomOut = document.getElementById("templateZoomOut");
+const templateZoomReset = document.getElementById("templateZoomReset");
+const templateZoomLabel = document.getElementById("templateZoomLabel");
 
 const publishStatus = document.getElementById("publishStatus");
 const mobileMq = window.matchMedia("(max-width: 900px)");
@@ -533,24 +540,30 @@ function setDrawTool(tool) {
   toolPen?.classList.toggle("active", isPen);
   toolEraser?.classList.toggle("active", !isPen);
   editor.setDrawTool?.(isPen ? "pen" : "eraser");
+  editor.setDrawMode("draw");
 }
 
-let drawReady = false;
-function setDrawReady(next) {
-  drawReady = !!next;
-  btnDrawAdd?.classList.toggle("active", drawReady);
-  drawMenu?.classList.toggle("isLocked", drawReady);
-  if (!drawReady) {
-    editor.setDrawMode("select");
-    return;
-  }
-  if (!toolPen?.classList.contains("active") && !toolEraser?.classList.contains("active")) {
-    setDrawTool("pen");
-  }
-  editor.setDrawMode("draw");
-  drawMenu?.classList.remove("isOpen");
-  panelDrawBtn?.classList.remove("active");
-  activeAdjustPanel = null;
+let templateZoomScale = 1;
+const TEMPLATE_ZOOM_MIN = 0.6;
+const TEMPLATE_ZOOM_MAX = 3;
+const TEMPLATE_ZOOM_STEP = 0.2;
+
+function updateTemplateZoom() {
+  if (!templateZoomImg) return;
+  templateZoomScale = Math.min(TEMPLATE_ZOOM_MAX, Math.max(TEMPLATE_ZOOM_MIN, templateZoomScale));
+  const value = Math.round(templateZoomScale * 100);
+  templateZoomImg.style.width = `${value}%`;
+  if (templateZoomLabel) templateZoomLabel.textContent = `${value}%`;
+}
+
+function openTemplateZoom() {
+  templateZoomScale = 1;
+  updateTemplateZoom();
+  templateZoomModal?.showModal();
+}
+
+function closeTemplateZoom() {
+  templateZoomModal?.close();
 }
 
 penColor?.addEventListener("input", updatePenOptions);
@@ -563,7 +576,20 @@ drawStrokeWidth?.addEventListener("input", updatePenOptions);
 btnClearDraw?.addEventListener("click", () => editor.clearDraw());
 toolPen?.addEventListener("click", () => setDrawTool("pen"));
 toolEraser?.addEventListener("click", () => setDrawTool("eraser"));
-btnDrawAdd?.addEventListener("click", () => setDrawReady(true));
+btnDrawAdd?.addEventListener("click", () => openTemplateZoom());
+templateZoomIn?.addEventListener("click", () => {
+  templateZoomScale += TEMPLATE_ZOOM_STEP;
+  updateTemplateZoom();
+});
+templateZoomOut?.addEventListener("click", () => {
+  templateZoomScale -= TEMPLATE_ZOOM_STEP;
+  updateTemplateZoom();
+});
+templateZoomReset?.addEventListener("click", () => {
+  templateZoomScale = 1;
+  updateTemplateZoom();
+});
+templateZoomClose?.addEventListener("click", closeTemplateZoom);
 
 editor.setDrawMode("select");
 updatePenOptions();
@@ -578,7 +604,6 @@ function closeAdjustPanel() {
   stickerMenu?.classList.remove("isOpen");
   editor.setDrawMode("select");
   clearDrawToolSelection();
-  setDrawReady(false);
   editor.resetAssetSelection?.();
 }
 
@@ -595,12 +620,8 @@ function setAdjustPanel(panel) {
   drawMenu?.classList.toggle("isOpen", isDraw);
   stickerMenu?.classList.toggle("isOpen", isSticker);
   if (isSticker) stickerMenu?.classList.remove("isLocked");
-  if (isDraw) {
-    setDrawReady(false);
-  } else {
-    editor.setDrawMode("select");
-  }
-  clearDrawToolSelection();
+  editor.setDrawMode("select");
+  if (!isDraw) clearDrawToolSelection();
   if (isSticker) editor.resetAssetSelection?.();
 }
 
@@ -624,7 +645,6 @@ document.addEventListener("pointerdown", (e) => {
   drawMenu?.classList.remove("isOpen");
   activeAdjustPanel = null;
   editor.setDrawMode("select");
-  setDrawReady(false);
   editor.resetAssetSelection?.();
 });
 

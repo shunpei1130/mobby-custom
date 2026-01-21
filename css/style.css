@@ -251,10 +251,6 @@ body{
 .drawMenu.isOpen .drawPanel{
   display:flex;
 }
-.drawMenu.isLocked .drawPanel,
-.drawMenu.isLocked:hover .drawPanel{
-  display:none !important;
-}
 .panelTab.active{
   background:linear-gradient(180deg, rgba(255,208,176,.85), rgba(255,184,150,.9));
   border-color:rgba(255,140,100,.45);
@@ -528,6 +524,39 @@ canvas{display:block;width:100%;height:auto;touch-action:pan-y}
   padding:14px;
   position:relative;
   z-index:1;
+}
+.templateZoomInner{width:min(560px, 92vw)}
+.templateZoomBody{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.templateZoomTitle{
+  font-weight:700;
+  font-size:14px;
+}
+.templateZoomViewport{
+  height:min(60vh, 520px);
+  overflow:auto;
+  border:1px solid var(--border);
+  border-radius:16px;
+  background:rgba(255,255,255,.7);
+  padding:8px;
+}
+.templateZoomImg{
+  display:block;
+  width:100%;
+  height:auto;
+}
+.templateZoomControls{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+}
+.templateZoomInner .iconBtn{
+  position:absolute;
+  right:12px;
+  top:12px;
 }
 .termsModalInner{width:min(720px, 92vw)}
 .inviteModalInner{width:min(620px, 92vw)}
