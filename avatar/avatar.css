@@ -1,0 +1,89 @@
+:root{
+  --bg:#0b0f18;
+  --card:#121a2b;
+  --line:#26304d;
+  --text:#e9eefc;
+  --muted:#aab3cc;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans JP", "Hiragino Kaku Gothic ProN", sans-serif;
+  background: radial-gradient(900px 600px at 15% 0%, #192856 0%, transparent 55%),
+              radial-gradient(900px 600px at 90% 0%, #3b1b3a 0%, transparent 55%),
+              var(--bg);
+  color:var(--text);
+}
+.wrap{max-width:1100px;margin:0 auto;padding:16px}
+.hdr{
+  position:static;
+  z-index:auto;
+  backdrop-filter: blur(10px);
+  background: rgba(11,15,24,.76);
+  border-bottom:1px solid rgba(38,48,77,.6);
+}
+
+.ttl{display:flex;gap:12px;align-items:center}
+.logo{
+  width:44px;height:44px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(38,48,77,.7);
+  font-weight:900;
+}
+h1{margin:0;font-size:16px}
+p{margin:3px 0 0;color:var(--muted);font-size:12px}
+
+.ctrl{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:12px;
+  align-items:end;
+}
+@media (max-width:860px){ .ctrl{grid-template-columns:1fr;} }
+
+.row label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+.row small{display:block;color:var(--muted);font-size:11px;margin-top:6px}
+select,input{
+  width:100%;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(38,48,77,.85);
+  background: rgba(18,26,43,.55);
+  color:var(--text);
+}
+
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+button{
+  cursor:pointer;
+  padding:10px 12px;
+  border-radius:14px;
+  border:1px solid rgba(38,48,77,.85);
+  background: rgba(18,26,43,.55);
+  color:var(--text);
+  font-weight:900;
+}
+button:hover{filter:brightness(1.06)}
+.note{grid-column:1 / -1; color:var(--muted); font-size:12px; line-height:1.55}
+
+.main{padding-top:18px;padding-bottom:40px}
+.pane{
+  border-radius:18px;
+  border:1px solid rgba(38,48,77,.7);
+  background: rgba(18,26,43,.72);
+  box-shadow: 0 12px 34px rgba(0,0,0,.34);
+  padding:14px;
+}
+.paneHead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.muted{color:var(--muted);font-size:12px}
+.canvasBox{
+  margin-top:10px;
+  border-radius:14px;
+  border:1px solid rgba(38,48,77,.55);
+  background:#0a0d17;
+  overflow:hidden;
+}
+canvas{display:block;width:100%;height:auto}
+.hidden{display:none !important}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>モビーアイコン作成</title>
+  <link rel="stylesheet" href="./avatar.css" />
+</head>
+<body>
+  <header class="hdr">
+    <div class="wrap">
+      <div class="ttl">
+        <div class="logo">mobby</div>
+        <div>
+          <h1>アイコン作成</h1>
+          <p>タイプ・名前・一言を入れて作成できます。配置はドラッグで調整できます。</p>
+        </div>
+      </div>
+
+      <div class="ctrl">
+        <div class="row">
+          <label for="typeSelect">タイプ</label>
+          <select id="typeSelect"></select>
+        </div>
+        <div class="row">
+          <label for="nameInput">名前</label>
+          <input id="nameInput" maxlength="20" placeholder="例：SUSUMU / さくめい" />
+          <small>※絵文字は非推奨です。</small>
+        </div>
+        <div class="row">
+          <label for="msgInput">一言</label>
+          <input id="msgInput" maxlength="40" placeholder="例：最年少上場" />
+        </div>
+        <div class="row">
+          <label for="typeColorSelect">タイプ名の色</label>
+          <select id="typeColorSelect"></select>
+        </div>
+        <div class="row">
+          <label for="nameColorSelect">名前の色</label>
+          <select id="nameColorSelect"></select>
+        </div>
+        <div class="row">
+          <label for="msgColorSelect">一言の色</label>
+          <select id="msgColorSelect"></select>
+        </div>
+        <div class="row">
+          <label for="decoSelect">デコテンプレ</label>
+          <select id="decoSelect"></select>
+          <small>※PNGを上から重ねます。</small>
+        </div>
+        <div class="row">
+          <label for="decoAlpha">デコ強さ</label>
+          <input id="decoAlpha" type="range" min="0" max="100" value="100" />
+          <small><span id="decoAlphaLabel">100</span>%</small>
+        </div>
+        <div class="btns">
+          <button id="applyBtn" type="button">更新</button>
+          <button id="useBtn" type="button">このアイコンを使う</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap main">
+    <div class="pane">
+      <div class="paneHead">
+        <div class="muted">プレビュー</div>
+        <div class="muted">操作：ドラッグで移動 / 右下で拡大縮小 / 外側リングで回転</div>
+      </div>
+      <div class="canvasBox">
+        <canvas id="avatarCanvas"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <div id="assetGrid" class="hidden"></div>
+
+  <script type="module" src="./avatar.js"></script>
+</body>
+</html>
