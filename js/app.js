@@ -357,6 +357,9 @@ function showDesign() {
   viewGallery?.classList.add("hidden");
   viewProfile?.classList.add("hidden");
   viewTimeline?.classList.add("hidden");
+  requestAnimationFrame(() => {
+    editor.fitCanvas?.();
+  });
 }
 function showGallery() {
   document.body?.classList.remove("designLock");

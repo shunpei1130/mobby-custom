@@ -20,15 +20,15 @@
       <button id="btnLogin" class="btn" type="button">Googleログイン</button>
     </div>
     <nav class="tabs">
-      <button id="tabDesign" class="tab active">デザイン</button>
-      <button id="tabGallery" class="tab">ランキング</button>
+      <button id="tabDesign" class="tab">デザイン</button>
+      <button id="tabGallery" class="tab active">ランキング</button>
       <button id="tabTimeline" class="tab">タイムライン</button>
     </nav>
   </header>
 
   <main class="container">
     <!-- DESIGN -->
-    <section id="viewDesign" class="grid2">
+    <section id="viewDesign" class="grid2 hidden">
       <div class="card designCard">
         <div id="adjustPanelBody" class="adjustPanelBody panelContent">
           <div class="panelHeader">
@@ -122,11 +122,11 @@
     </section>
 
     <!-- GALLERY -->
-    <section id="viewGallery" class="hidden">
+    <section id="viewGallery">
       <div class="card">
         <div class="row" style="justify-content:space-between;align-items:center;">
           <h2 style="margin:0;">ランキング（いいね順）</h2>
-          <div class="row" style="margin:0;gap:8px;">
+          <div class="row rankControls" style="margin:0;gap:8px;">
             <select id="rankFilter" class="select" aria-label="モビー別ランキング">
               <option value="all">すべて</option>
             </select>
