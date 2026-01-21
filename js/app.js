@@ -348,6 +348,7 @@ function buildStickerList(profile) {
 }
 
 function showDesign() {
+  document.body?.classList.add("designLock");
   tabDesign?.classList.add("active");
   tabGallery?.classList.remove("active");
   tabProfile?.classList.remove("active");
@@ -358,6 +359,7 @@ function showDesign() {
   viewTimeline?.classList.add("hidden");
 }
 function showGallery() {
+  document.body?.classList.remove("designLock");
   tabGallery?.classList.add("active");
   tabDesign?.classList.remove("active");
   tabProfile?.classList.remove("active");
@@ -368,6 +370,7 @@ function showGallery() {
   viewTimeline?.classList.add("hidden");
 }
 function showProfile() {
+  document.body?.classList.remove("designLock");
   tabProfile?.classList.add("active");
   tabDesign?.classList.remove("active");
   tabGallery?.classList.remove("active");
@@ -378,6 +381,7 @@ function showProfile() {
   viewTimeline?.classList.add("hidden");
 }
 function showTimeline() {
+  document.body?.classList.remove("designLock");
   tabTimeline?.classList.add("active");
   tabDesign?.classList.remove("active");
   tabGallery?.classList.remove("active");

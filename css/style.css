@@ -14,7 +14,8 @@
 }
 
 *{box-sizing:border-box}
-html, body{overscroll-behavior:contain;height:100%;overflow:hidden;touch-action:none}
+html, body{overscroll-behavior:contain;height:100%}
+body.designLock{overflow:hidden;touch-action:none}
 body{
   margin:0;
   font-family:var(--font-ja), "Hiragino Maru Gothic ProN","Yu Gothic","Meiryo","Noto Sans JP","Segoe UI",sans-serif;
