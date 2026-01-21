@@ -1290,6 +1290,7 @@
         return;
       }
       if (selectedAsset.url) addAsset(selectedAsset.url, selectedAsset.name);
+      assetGrid.dispatchEvent(new CustomEvent("assetadd"));
     });
 
     resetAssetSelectionCallback = resetAssetSelection;

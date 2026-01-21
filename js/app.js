@@ -590,6 +590,12 @@ function setAdjustPanel(panel) {
 
 panelDrawBtn?.addEventListener("click", () => setAdjustPanel("draw"));
 panelStickerBtn?.addEventListener("click", () => setAdjustPanel("sticker"));
+assetGrid?.addEventListener("assetadd", () => {
+  panelStickerBtn?.classList.remove("active");
+  stickerMenu?.classList.remove("isOpen");
+  activeAdjustPanel = null;
+  editor.resetAssetSelection?.();
+});
 document.addEventListener("pointerdown", (e) => {
   const stickerOpen = stickerMenu?.classList.contains("isOpen");
   const drawOpen = drawMenu?.classList.contains("isOpen");
