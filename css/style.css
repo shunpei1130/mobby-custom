@@ -270,15 +270,17 @@ body{
 }
 .templatePreview{
   position:absolute;
-  inset:12%;
+  inset:9%;
   display:flex;
   justify-content:center;
   align-items:center;
   pointer-events:none;
 }
 .templatePreview img{
-  max-width:100%;
-  max-height:100%;
+  width:100%;
+  height:100%;
+  max-width:none;
+  max-height:none;
   opacity:.35;
 }
 canvas{display:block;width:100%;height:auto;touch-action:pan-y}
