@@ -25,6 +25,7 @@
   let selectedId = null;
   let drag = null;
   let drawMode = "select";
+  let objectEditEnabled = false;
   let drawing = null;
   let dragMoved = false;
   let rotateDrag = null;
@@ -556,7 +557,7 @@
       }
       ctx.restore();
 
-      if (o.id === selectedId) {
+      if (o.id === selectedId && canEditObjects()) {
         ctx.save();
         ctx.translate(o.x, o.y);
         ctx.rotate(o.r);
@@ -575,7 +576,7 @@
       }
     }
 
-    if (selectedId) {
+    if (selectedId && canEditObjects()) {
       const o = objects.find(v => v.id === selectedId);
       if (o && o.type !== "path") {
         const bounds = getObjectBounds(o);
@@ -678,6 +679,14 @@
     return Math.min(MAX_VIEW_SCALE, Math.max(MIN_VIEW_SCALE, value));
   }
 
+  function canEditObjects() {
+    return objectEditEnabled && drawMode !== "draw";
+  }
+
+  function canZoomView() {
+    return drawMode !== "draw";
+  }
+
   function applyViewScale(nextScale, centerX, centerY) {
     const clamped = clampViewScale(nextScale);
     const ratio = clamped / viewScale;
@@ -689,12 +698,12 @@
   function maybeStartPinch() {
     if (activePointers.size !== 2) return false;
     const points = Array.from(activePointers.values());
-    if (selectedId && drawMode !== "draw") {
+    if (!isInsideDesignArea(points[0].x, points[0].y) || !isInsideDesignArea(points[1].x, points[1].y)) {
+      return false;
+    }
+    if (canEditObjects() && selectedId) {
       const o = objects.find(v => v.id === selectedId);
       if (!o || o.type === "path") return false;
-      if (!isInsideDesignArea(points[0].x, points[0].y) || !isInsideDesignArea(points[1].x, points[1].y)) {
-        return false;
-      }
       const dist = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
       pinch = {
         type: "object",
@@ -702,10 +711,7 @@
         startDist: dist || 1,
         startScale: o.s
       };
-    } else {
-      if (!isInsideDesignArea(points[0].x, points[0].y) || !isInsideDesignArea(points[1].x, points[1].y)) {
-        return false;
-      }
+    } else if (canZoomView()) {
       const dist = Math.hypot(points[0].sx - points[1].sx, points[0].sy - points[1].sy);
       const centerX = (points[0].sx + points[1].sx) / 2;
       const centerY = (points[0].sy + points[1].sy) / 2;
@@ -716,6 +722,8 @@
         centerX,
         centerY
       };
+    } else {
+      return false;
     }
     drag = null;
     rotateDrag = null;
@@ -742,16 +750,13 @@
     if (!e.touches || e.touches.length !== 2) return;
     const t0 = e.touches[0];
     const t1 = e.touches[1];
-    if (selectedId && drawMode !== "draw") {
-      const p0 = toCanvasCoordsFromPoint(t0.clientX, t0.clientY);
-      const p1 = toCanvasCoordsFromPoint(t1.clientX, t1.clientY);
-      if (!isInsideDesignArea(p0.x, p0.y) || !isInsideDesignArea(p1.x, p1.y)) return;
+    const p0 = toCanvasCoordsFromPoint(t0.clientX, t0.clientY);
+    const p1 = toCanvasCoordsFromPoint(t1.clientX, t1.clientY);
+    if (!isInsideDesignArea(p0.x, p0.y) || !isInsideDesignArea(p1.x, p1.y)) return;
+    if (canEditObjects() && selectedId) {
       const dist = Math.hypot(p0.x - p1.x, p0.y - p1.y);
       touchPinch = { type: "object", id: selectedId, startDist: dist || 1, startScale: objects.find(v => v.id === selectedId)?.s || 1 };
-    } else {
-      const p0 = toCanvasCoordsFromPoint(t0.clientX, t0.clientY);
-      const p1 = toCanvasCoordsFromPoint(t1.clientX, t1.clientY);
-      if (!isInsideDesignArea(p0.x, p0.y) || !isInsideDesignArea(p1.x, p1.y)) return;
+    } else if (canZoomView()) {
       const s0 = toCanvasScreenCoordsFromPoint(t0.clientX, t0.clientY);
       const s1 = toCanvasScreenCoordsFromPoint(t1.clientX, t1.clientY);
       const dist = Math.hypot(s0.x - s1.x, s0.y - s1.y);
@@ -767,6 +772,14 @@
 
   canvas.addEventListener("touchmove", (e) => {
     if (!touchPinch || !e.touches || e.touches.length !== 2) return;
+    if (touchPinch.type === "view" && !canZoomView()) {
+      touchPinch = null;
+      return;
+    }
+    if (touchPinch.type === "object" && !canEditObjects()) {
+      touchPinch = null;
+      return;
+    }
     const t0 = e.touches[0];
     const t1 = e.touches[1];
     if (touchPinch.type === "view") {
@@ -811,6 +824,9 @@
       return;
     }
     if (drawMode === "draw") {
+      if (activePointers.size > 1) {
+        return;
+      }
       if (drawTool === "eraser") {
         erasing = { pointerId: e.pointerId, lastX: x, lastY: y };
         const changed = eraseAt(x, y);
@@ -835,6 +851,19 @@
       selectedId = null;
       drag = null;
       draw();
+      return;
+    }
+    if (!canEditObjects()) {
+      if (selectedId || drag || rotateDrag || scaleDrag || drawing || erasing) {
+        selectedId = null;
+        drag = null;
+        rotateDrag = null;
+        scaleDrag = null;
+        drawing = null;
+        erasing = null;
+        dragMoved = false;
+        draw();
+      }
       return;
     }
     const current = selectedId ? objects.find(v => v.id === selectedId) : null;
@@ -1018,7 +1047,7 @@
   });
 
   canvas.addEventListener("wheel", (e) => {
-    if (!selectedId) return;
+    if (!canEditObjects() || !selectedId) return;
     e.preventDefault();
     const o = objects.find(v => v.id === selectedId);
     if (!o) return;
@@ -1029,7 +1058,7 @@
   }, { passive: false });
 
   window.addEventListener("keydown", (e) => {
-    if (!selectedId) return;
+    if (!canEditObjects() || !selectedId) return;
     const o = objects.find(v => v.id === selectedId);
     if (!o) return;
 
@@ -1361,7 +1390,20 @@
   }
 
   function setDrawMode(mode) {
-    drawMode = mode === "draw" ? "draw" : "select";
+    const nextMode = mode === "draw" ? "draw" : "select";
+    if (drawMode === nextMode) return;
+    drawMode = nextMode;
+    selectedId = null;
+    drag = null;
+    rotateDrag = null;
+    scaleDrag = null;
+    drawing = null;
+    erasing = null;
+    pinch = null;
+    touchPinch = null;
+    activePointers.clear();
+    dragMoved = false;
+    draw();
   }
 
   function setPenOptions(opts = {}) {
