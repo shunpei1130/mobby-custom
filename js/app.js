@@ -88,9 +88,17 @@ function setCanvasInteracting(next) {
   }
 }
 
+function setMobileInputScroll(enabled) {
+  if (!mobileMq.matches) return;
+  document.documentElement.classList.toggle("allowScroll", enabled);
+  document.body?.classList.toggle("allowScroll", enabled);
+}
+
 canvas?.addEventListener("touchstart", () => setCanvasInteracting(true), { passive: true });
 canvas?.addEventListener("touchend", () => setCanvasInteracting(false));
 canvas?.addEventListener("touchcancel", () => setCanvasInteracting(false));
+titleInput?.addEventListener("focus", () => setMobileInputScroll(true));
+titleInput?.addEventListener("blur", () => setMobileInputScroll(false));
 
 async function createThumbDataUrl(sourceCanvas, size = 320) {
   const canvas = document.createElement("canvas");
