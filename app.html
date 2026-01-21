@@ -8,13 +8,15 @@
 </head>
 <body class="bg">
   <header class="topbar">
-    <a class="brand" href="./index.html">← Home</a>
-    <div class="right">
+    <div class="topbarLeft">
+      <a class="brand" href="./index.html">Home</a>
       <button id="userBadge" class="badge" type="button" aria-label="プロフィールを開く">
         <img id="userAvatar" class="avatar badgeAvatar hidden" alt="ユーザーアイコン" />
         <span id="userBadgeLabel">login...</span>
       </button>
       <button id="btnLogout" class="btn" type="button">ログアウト</button>
+    </div>
+    <div class="right">
       <button id="btnLogin" class="btn" type="button">Googleログイン</button>
     </div>
     <nav class="tabs">
@@ -113,11 +115,7 @@
           <button id="btnPublish" class="btn primary" type="button">投稿する</button>
         </div>
 
-        <p class="muted">
-          操作：
-          <span class="deviceDesktop">クリックで追加 / ドラッグで移動 / ホイールで拡大縮小 / Q,Eで回転 / Deleteで削除</span>
-          <span class="deviceMobile">タップで選択 / ドラッグで移動 / 二本指で拡大縮小</span>
-        </p>
+     
         <div id="publishStatus" class="muted"></div>
       </div>
     </section>
