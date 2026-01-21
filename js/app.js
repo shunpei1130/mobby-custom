@@ -436,6 +436,7 @@ function showTimelineSearchMode() {
 
 // ---- main ----
 const editor = createEditor({ canvas, templateSelect, assetGrid, templatePreviewImg });
+const defaultTemplateUrl = templateSelect?.value || templatePreviewImg?.getAttribute("src") || "";
 const DRAFT_KEY = "mobby_design_draft_v1";
 let isRestoringDraft = false;
 let canvasResizeObserver = null;
@@ -465,7 +466,10 @@ if (canvasWrap && typeof ResizeObserver !== "undefined") {
   canvasResizeObserver.observe(canvasWrap);
 }
 try {
-  await editor.loadTemplate(templateSelect?.value);
+  const initialTemplate = templateSelect?.value || defaultTemplateUrl;
+  if (initialTemplate) {
+    await editor.loadTemplate(initialTemplate);
+  }
 } catch (e) {
   console.warn("template load failed", e);
 }
@@ -518,8 +522,9 @@ if (draftState && draftModal) {
   });
   draftDiscard?.addEventListener("click", async () => {
     localStorage.removeItem(DRAFT_KEY);
-    if (templateSelect) {
-      await editor.setState?.({ template: templateSelect.value, objects: [] });
+    const nextTemplate = templateSelect?.value || defaultTemplateUrl;
+    if (nextTemplate) {
+      await editor.setState?.({ template: nextTemplate, objects: [] });
     } else {
       editor.clearAll?.();
     }
