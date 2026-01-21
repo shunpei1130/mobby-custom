@@ -40,6 +40,7 @@ const userBadge = document.getElementById("userBadge");
 const userBadgeLabel = document.getElementById("userBadgeLabel");
 
 const canvas = document.getElementById("designCanvas");
+const templatePreviewImg = document.querySelector(".templatePreview img");
 const canvasModeToggle = document.getElementById("canvasModeToggle");
 const btnModeMove = document.getElementById("btnModeMove");
 const btnModeDraw = document.getElementById("btnModeDraw");
@@ -406,7 +407,7 @@ function showTimelineSearchMode() {
 }
 
 // ---- main ----
-const editor = createEditor({ canvas, templateSelect, assetGrid });
+const editor = createEditor({ canvas, templateSelect, assetGrid, templatePreviewImg });
 const DRAFT_KEY = "mobby_design_draft_v1";
 let isRestoringDraft = false;
 

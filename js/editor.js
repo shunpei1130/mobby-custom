@@ -1,4 +1,4 @@
-﻿export function createEditor({ canvas, templateSelect, assetGrid }) {
+﻿export function createEditor({ canvas, templateSelect, assetGrid, templatePreviewImg }) {
   const ctx = canvas.getContext("2d");
   const DPR = Math.max(1, Math.floor(window.devicePixelRatio || 1));
 
@@ -514,8 +514,6 @@
     ctx.rect(pad, pad, w, h);
     ctx.clip();
     ctx.save();
-    ctx.translate(viewOffsetX, viewOffsetY);
-    ctx.scale(viewScale, viewScale);
     if (templateImg?.width) {
       ctx.drawImage(templateImg, pad, pad, w, h);
     } else {
@@ -648,8 +646,8 @@
   function toCanvasCoords(e) {
     const screen = toCanvasScreenCoords(e);
     return {
-      x: (screen.x - viewOffsetX) / viewScale,
-      y: (screen.y - viewOffsetY) / viewScale
+      x: screen.x,
+      y: screen.y
     };
   }
 
@@ -688,26 +686,32 @@
     return drawMode !== "draw";
   }
 
+  function syncTemplatePreviewScale() {
+    if (!templatePreviewImg) return;
+    templatePreviewImg.style.transform = `scale(${viewScale})`;
+    templatePreviewImg.style.transformOrigin = "center";
+  }
+
   function resetViewIfClose() {
     if (Math.abs(viewScale - 1) > VIEW_SCALE_SNAP) return false;
     viewScale = 1;
     viewOffsetX = 0;
     viewOffsetY = 0;
+    syncTemplatePreviewScale();
+    syncTemplatePreviewScale();
     return true;
   }
 
-  function applyViewScale(nextScale, centerX, centerY) {
+  function applyViewScale(nextScale) {
     let clamped = clampViewScale(nextScale);
     const shouldSnap = Math.abs(clamped - 1) <= VIEW_SCALE_SNAP;
     if (shouldSnap) clamped = 1;
-    const ratio = clamped / viewScale;
-    viewOffsetX = centerX - (centerX - viewOffsetX) * ratio;
-    viewOffsetY = centerY - (centerY - viewOffsetY) * ratio;
     viewScale = clamped;
     if (shouldSnap) {
       viewOffsetX = 0;
       viewOffsetY = 0;
     }
+    syncTemplatePreviewScale();
   }
 
   function maybeStartPinch() {
@@ -1121,6 +1125,7 @@
       viewScale = 1;
       viewOffsetX = 0;
       viewOffsetY = 0;
+      syncTemplatePreviewScale();
       draw();
     }
     const markCanvas = document.createElement("canvas");
@@ -1149,6 +1154,7 @@
       viewScale = prevViewScale;
       viewOffsetX = prevViewOffsetX;
       viewOffsetY = prevViewOffsetY;
+      syncTemplatePreviewScale();
       draw();
     }
     return blob;
