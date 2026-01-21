@@ -689,7 +689,7 @@
   function maybeStartPinch() {
     if (activePointers.size !== 2) return false;
     const points = Array.from(activePointers.values());
-    if (selectedId) {
+    if (selectedId && drawMode !== "draw") {
       const o = objects.find(v => v.id === selectedId);
       if (!o || o.type === "path") return false;
       if (!isInsideDesignArea(points[0].x, points[0].y) || !isInsideDesignArea(points[1].x, points[1].y)) {
@@ -742,7 +742,7 @@
     if (!e.touches || e.touches.length !== 2) return;
     const t0 = e.touches[0];
     const t1 = e.touches[1];
-    if (selectedId) {
+    if (selectedId && drawMode !== "draw") {
       const p0 = toCanvasCoordsFromPoint(t0.clientX, t0.clientY);
       const p1 = toCanvasCoordsFromPoint(t1.clientX, t1.clientY);
       if (!isInsideDesignArea(p0.x, p0.y) || !isInsideDesignArea(p1.x, p1.y)) return;

@@ -69,14 +69,6 @@ const drawStrokeWidth = document.getElementById("drawStrokeWidth");
 const drawStrokeWidthValue = document.getElementById("drawStrokeWidthValue");
 const toolPen = document.getElementById("toolPen");
 const toolEraser = document.getElementById("toolEraser");
-const btnDrawAdd = document.getElementById("btnDrawAdd");
-const templateZoomModal = document.getElementById("templateZoomModal");
-const templateZoomClose = document.getElementById("templateZoomClose");
-const templateZoomImg = document.getElementById("templateZoomImg");
-const templateZoomIn = document.getElementById("templateZoomIn");
-const templateZoomOut = document.getElementById("templateZoomOut");
-const templateZoomReset = document.getElementById("templateZoomReset");
-const templateZoomLabel = document.getElementById("templateZoomLabel");
 
 const publishStatus = document.getElementById("publishStatus");
 const mobileMq = window.matchMedia("(max-width: 900px)");
@@ -535,35 +527,16 @@ function clearDrawToolSelection() {
   toolEraser?.classList.remove("active");
 }
 
+function isDrawToolActive() {
+  return toolPen?.classList.contains("active") || toolEraser?.classList.contains("active");
+}
+
 function setDrawTool(tool) {
   const isPen = tool === "pen";
   toolPen?.classList.toggle("active", isPen);
   toolEraser?.classList.toggle("active", !isPen);
   editor.setDrawTool?.(isPen ? "pen" : "eraser");
   editor.setDrawMode("draw");
-}
-
-let templateZoomScale = 1;
-const TEMPLATE_ZOOM_MIN = 0.6;
-const TEMPLATE_ZOOM_MAX = 3;
-const TEMPLATE_ZOOM_STEP = 0.2;
-
-function updateTemplateZoom() {
-  if (!templateZoomImg) return;
-  templateZoomScale = Math.min(TEMPLATE_ZOOM_MAX, Math.max(TEMPLATE_ZOOM_MIN, templateZoomScale));
-  const value = Math.round(templateZoomScale * 100);
-  templateZoomImg.style.width = `${value}%`;
-  if (templateZoomLabel) templateZoomLabel.textContent = `${value}%`;
-}
-
-function openTemplateZoom() {
-  templateZoomScale = 1;
-  updateTemplateZoom();
-  templateZoomModal?.showModal();
-}
-
-function closeTemplateZoom() {
-  templateZoomModal?.close();
 }
 
 penColor?.addEventListener("input", updatePenOptions);
@@ -576,20 +549,6 @@ drawStrokeWidth?.addEventListener("input", updatePenOptions);
 btnClearDraw?.addEventListener("click", () => editor.clearDraw());
 toolPen?.addEventListener("click", () => setDrawTool("pen"));
 toolEraser?.addEventListener("click", () => setDrawTool("eraser"));
-btnDrawAdd?.addEventListener("click", () => openTemplateZoom());
-templateZoomIn?.addEventListener("click", () => {
-  templateZoomScale += TEMPLATE_ZOOM_STEP;
-  updateTemplateZoom();
-});
-templateZoomOut?.addEventListener("click", () => {
-  templateZoomScale -= TEMPLATE_ZOOM_STEP;
-  updateTemplateZoom();
-});
-templateZoomReset?.addEventListener("click", () => {
-  templateZoomScale = 1;
-  updateTemplateZoom();
-});
-templateZoomClose?.addEventListener("click", closeTemplateZoom);
 
 editor.setDrawMode("select");
 updatePenOptions();
@@ -602,8 +561,12 @@ function closeAdjustPanel() {
   panelStickerBtn?.classList.remove("active");
   drawMenu?.classList.remove("isOpen");
   stickerMenu?.classList.remove("isOpen");
-  editor.setDrawMode("select");
-  clearDrawToolSelection();
+  if (isDrawToolActive()) {
+    editor.setDrawMode("draw");
+  } else {
+    editor.setDrawMode("select");
+    clearDrawToolSelection();
+  }
   editor.resetAssetSelection?.();
 }
 
@@ -621,6 +584,9 @@ function setAdjustPanel(panel) {
   stickerMenu?.classList.toggle("isOpen", isSticker);
   if (isSticker) stickerMenu?.classList.remove("isLocked");
   editor.setDrawMode("select");
+  if (isDraw && isDrawToolActive()) {
+    editor.setDrawMode("draw");
+  }
   if (!isDraw) clearDrawToolSelection();
   if (isSticker) editor.resetAssetSelection?.();
 }
@@ -644,7 +610,12 @@ document.addEventListener("pointerdown", (e) => {
   stickerMenu?.classList.remove("isOpen");
   drawMenu?.classList.remove("isOpen");
   activeAdjustPanel = null;
-  editor.setDrawMode("select");
+  if (isDrawToolActive()) {
+    editor.setDrawMode("draw");
+  } else {
+    editor.setDrawMode("select");
+    clearDrawToolSelection();
+  }
   editor.resetAssetSelection?.();
 });
 

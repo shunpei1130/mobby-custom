@@ -47,9 +47,6 @@
               <div id="drawMenu" class="drawMenu">
                 <button id="panelDrawBtn" class="panelTab" type="button">手書き</button>
                 <div id="panelDraw" class="panel drawPanel panelContent">
-                  <div class="drawHeader">
-                    <button id="btnDrawAdd" class="btn primary" type="button">追加して描く</button>
-                  </div>
                   <div class="drawGroup">
                     <div class="drawGroupTitle">ツール</div>
                     <div class="row">
@@ -230,25 +227,6 @@
       </div>
     </section>
   </main>
-
-  <dialog id="templateZoomModal" class="modal">
-    <div class="modalInner templateZoomInner">
-      <button id="templateZoomClose" class="iconBtn" type="button">×</button>
-      <div class="templateZoomBody">
-        <div class="templateZoomTitle">テンプレート Tシャツ</div>
-        <div class="templateZoomViewport">
-          <img id="templateZoomImg" class="templateZoomImg" src="assets/templates/tshirt.png" alt="テンプレート Tシャツ" />
-        </div>
-        <div class="templateZoomControls">
-          <button id="templateZoomOut" class="btn" type="button" aria-label="縮小">-</button>
-          <button id="templateZoomReset" class="btn" type="button" aria-label="倍率リセット">
-            <span id="templateZoomLabel">100%</span>
-          </button>
-          <button id="templateZoomIn" class="btn" type="button" aria-label="拡大">+</button>
-        </div>
-      </div>
-    </div>
-  </dialog>
 
   <!-- Modal -->
   <dialog id="modal" class="modal">

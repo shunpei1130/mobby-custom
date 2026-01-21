@@ -210,15 +210,6 @@ body{
   display:none;
 }
 .drawPanel{flex-direction:column}
-.drawHeader{
-  position:sticky;
-  top:0;
-  z-index:2;
-  margin:-12px -12px 6px;
-  padding:12px 12px 6px;
-  background:rgba(255,255,255,.92);
-  border-bottom:1px solid var(--border);
-}
 .drawGroup{
   border:1px dashed rgba(121,93,72,.22);
   border-radius:14px;
@@ -524,39 +515,6 @@ canvas{display:block;width:100%;height:auto;touch-action:pan-y}
   padding:14px;
   position:relative;
   z-index:1;
-}
-.templateZoomInner{width:min(560px, 92vw)}
-.templateZoomBody{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-.templateZoomTitle{
-  font-weight:700;
-  font-size:14px;
-}
-.templateZoomViewport{
-  height:min(60vh, 520px);
-  overflow:auto;
-  border:1px solid var(--border);
-  border-radius:16px;
-  background:rgba(255,255,255,.7);
-  padding:8px;
-}
-.templateZoomImg{
-  display:block;
-  width:100%;
-  height:auto;
-}
-.templateZoomControls{
-  display:flex;
-  gap:8px;
-  justify-content:center;
-}
-.templateZoomInner .iconBtn{
-  position:absolute;
-  right:12px;
-  top:12px;
 }
 .termsModalInner{width:min(720px, 92vw)}
 .inviteModalInner{width:min(620px, 92vw)}
