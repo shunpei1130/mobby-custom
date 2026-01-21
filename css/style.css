@@ -228,19 +228,23 @@ body{
   gap:6px;
   align-items:center;
 }
-.stickerMenu:hover .stickerPanel,
-.stickerMenu.isOpen .stickerPanel,
-.drawMenu:hover .drawPanel,
-.drawMenu.isOpen .drawPanel{
+.stickerMenu.isOpen .stickerPanel{
   display:block;
+}
+.drawMenu.isOpen .drawPanel{
+  display:flex;
 }
 .stickerMenu.isLocked .stickerPanel,
 .stickerMenu.isLocked:hover .stickerPanel{
   display:none !important;
 }
-.drawMenu:hover .drawPanel,
-.drawMenu.isOpen .drawPanel{
-  display:flex;
+@media (hover: hover) and (pointer: fine) {
+  .stickerMenu:hover .stickerPanel{
+    display:block;
+  }
+  .drawMenu:hover .drawPanel{
+    display:flex;
+  }
 }
 .panelTab.active{
   background:linear-gradient(180deg, rgba(255,208,176,.85), rgba(255,184,150,.9));
