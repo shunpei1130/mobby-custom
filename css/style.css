@@ -294,7 +294,7 @@ body{
   max-height:none;
   opacity:.35;
 }
-canvas{display:block;width:100%;height:auto;touch-action:pan-y}
+canvas{display:block;width:100% !important;height:auto !important;touch-action:pan-y}
 .canvasInteracting{overflow:hidden}
 .canvasModeToggle{
   position:absolute;

@@ -418,6 +418,7 @@ function showTimelineSearchMode() {
 const editor = createEditor({ canvas, templateSelect, assetGrid, templatePreviewImg });
 const DRAFT_KEY = "mobby_design_draft_v1";
 let isRestoringDraft = false;
+let canvasResizeObserver = null;
 
 function syncInvitePoints(nextPoints) {
   if (profileInvitePoints) {
@@ -432,6 +433,17 @@ function refreshStickerAssets(profile) {
 
 refreshStickerAssets(null);
 editor.fitCanvas();
+if (canvasWrap && typeof ResizeObserver !== "undefined") {
+  canvasResizeObserver = new ResizeObserver((entries) => {
+    if (viewDesign?.classList.contains("hidden")) return;
+    for (const entry of entries) {
+      if (entry.target !== canvasWrap) continue;
+      if (!entry.contentRect.width || !entry.contentRect.height) continue;
+      editor.fitCanvas?.();
+    }
+  });
+  canvasResizeObserver.observe(canvasWrap);
+}
 try {
   await editor.loadTemplate(templateSelect?.value);
 } catch (e) {
