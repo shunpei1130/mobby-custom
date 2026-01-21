@@ -536,8 +536,8 @@ function updateCanvasModeButtons(mode) {
   btnModeMove?.classList.toggle("active", !isDraw);
 }
 
-function setCanvasModeVisible(show) {
-  canvasModeToggle?.classList.toggle("hidden", !show);
+function setCanvasModeVisible() {
+  canvasModeToggle?.classList.remove("hidden");
 }
 
 function setDrawToolInternal(tool) {
@@ -577,6 +577,7 @@ btnModeMove?.addEventListener("click", () => setCanvasMode("move"));
 btnModeDraw?.addEventListener("click", () => setCanvasMode("draw"));
 
 editor.setDrawMode("select");
+setCanvasModeVisible();
 updatePenOptions();
 if (penSizeValue) penSizeValue.textContent = String(clampNumber(penSize?.value, 1, 40, 6));
 if (drawStrokeWidthValue) drawStrokeWidthValue.textContent = String(clampNumber(drawStrokeWidth?.value, 0, 12, 0));
