@@ -10,13 +10,14 @@
   <header class="topbar">
     <a class="brand" href="./index.html">← Home</a>
     <div class="right">
-      <span id="userBadge" class="badge">login...</span>
-      <button id="btnLogin" class="btn" type="button">Googleログイン</button>
-      <img id="userAvatar" class="avatar hidden" alt="ユーザーアイコン" />
+      <button id="userBadge" class="badge" type="button" aria-label="プロフィールを開く">
+        <img id="userAvatar" class="avatar badgeAvatar hidden" alt="ユーザーアイコン" />
+        <span id="userBadgeLabel">login...</span>
+      </button>
       <button id="btnLogout" class="btn" type="button">ログアウト</button>
+      <button id="btnLogin" class="btn" type="button">Googleログイン</button>
     </div>
     <nav class="tabs">
-      <button id="tabProfile" class="tab">プロフィール</button>
       <button id="tabDesign" class="tab active">デザイン</button>
       <button id="tabGallery" class="tab">ランキング</button>
       <button id="tabTimeline" class="tab">タイムライン</button>
@@ -27,75 +28,76 @@
     <!-- DESIGN -->
     <section id="viewDesign" class="grid2">
       <div class="card designCard">
-        <div class="designHeader">
-          <button id="designToggle" class="designToggle" type="button" aria-expanded="false">デザイン</button>
+        <div id="adjustPanelBody" class="adjustPanelBody panelContent">
+          <div class="panelHeader">
+            <div class="panelActions">
+              <button id="btnUndo" class="btn iconActionBtn" type="button" aria-label="戻す">↶</button>
+              <button id="btnRedo" class="btn iconActionBtn" type="button" aria-label="進める">↷</button>
+            </div>
+            <div class="panelTabs">
+              <div id="stickerMenu" class="stickerMenu">
+                <button id="panelStickerBtn" class="panelTab" type="button">ステッカー</button>
+                <div id="panelSticker" class="panel stickerPanel panelContent">
+                  <h3 style="margin-top:6px;">使える素材（ステッカー）</h3>
+                  <div id="assetGrid" class="assetPicker"></div>
+                </div>
+              </div>
+              <div id="drawMenu" class="drawMenu">
+                <button id="panelDrawBtn" class="panelTab" type="button">手書き</button>
+                <div id="panelDraw" class="panel drawPanel panelContent">
+                  <div class="drawHeader">
+                    <button id="btnDrawAdd" class="btn primary" type="button">追加して描く</button>
+                  </div>
+                  <div class="row">
+                    <label class="label" for="toolPen">ツール</label>
+                    <span class="toolGroup">
+                      <button id="toolPen" class="btn active" type="button">ペン</button>
+                      <button id="toolEraser" class="btn" type="button">消しゴム</button>
+                    </span>
+
+                    <label class="label" for="penColor">ペン色</label>
+                    <input id="penColor" class="input" type="color" value="#3a2f26" />
+
+                    <label class="label" for="penSize">太さ</label>
+                    <input id="penSize" class="input" type="range" min="1" max="40" value="6" />
+                    <span id="penSizeValue" class="muted" style="min-width:36px;text-align:right;">6</span>
+
+                    <button id="btnClearDraw" class="btn" type="button">手書きを消す</button>
+                  </div>
+
+                  <div class="row">
+                    <label class="label" for="drawEffect">エフェクト</label>
+                    <select id="drawEffect" class="select">
+                      <option value="none">なし</option>
+                      <option value="shadow">シャドウ</option>
+                      <option value="glow">グロウ</option>
+                    </select>
+
+                    <label class="label" for="drawEffectColor">効果色</label>
+                    <input id="drawEffectColor" class="input" type="color" value="#00f5ff" />
+
+                    <label class="label" for="drawEffectBlur">強さ</label>
+                    <input id="drawEffectBlur" class="input" type="range" min="0" max="60" value="18" />
+
+                    <label class="label" for="drawStrokeColor">枠色</label>
+                    <input id="drawStrokeColor" class="input" type="color" value="#000000" />
+
+                    <label class="label" for="drawStrokeWidth">枠太さ</label>
+                    <input id="drawStrokeWidth" class="input" type="range" min="0" max="12" value="0" />
+                    <span id="drawStrokeWidthValue" class="muted" style="min-width:36px;text-align:right;">0</span>
+                    <span class="rowBreak" aria-hidden="true"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         <div class="canvasWrap">
           <canvas id="designCanvas" width="900" height="900"></canvas>
           <div class="templatePreview">
             <img src="assets/templates/tshirt.png" alt="テンプレート Tシャツ" />
-          </div>
-        </div>
-
-        <div id="adjustPanelBody" class="adjustPanelBody panelContent hidden">
-          <div class="panelHeader">
-            <h2>調整</h2>
-            <div class="panelActions">
-              <button id="btnUndo" class="btn" type="button">戻す</button>
-              <button id="btnRedo" class="btn" type="button">進める</button>
-            </div>
-          </div>
-          <div class="panelTabs">
-            <button id="panelStickerBtn" class="panelTab" type="button">ステッカー</button>
-            <button id="panelDrawBtn" class="panelTab" type="button">手書き</button>
-          </div>
-          <div id="panelDraw" class="panel hidden">
-            <div class="row">
-              <label class="label" for="toolPen">ツール</label>
-              <button id="toolPen" class="btn active" type="button">ペン</button>
-              <button id="toolEraser" class="btn" type="button">消しゴム</button>
-
-              <label class="label" for="penColor">ペン色</label>
-              <input id="penColor" class="input" type="color" value="#3a2f26" />
-
-              <label class="label" for="penSize">太さ</label>
-              <input id="penSize" class="input" type="range" min="1" max="40" value="6" />
-              <span id="penSizeValue" class="muted" style="min-width:36px;text-align:right;">6</span>
-
-              <button id="btnClearDraw" class="btn" type="button">手書きを消す</button>
-            </div>
-
-            <div class="row">
-              <label class="label" for="drawEffect">エフェクト</label>
-              <select id="drawEffect" class="select">
-                <option value="none">なし</option>
-                <option value="shadow">シャドウ</option>
-                <option value="glow">グロウ</option>
-              </select>
-
-              <label class="label" for="drawEffectColor">効果色</label>
-              <input id="drawEffectColor" class="input" type="color" value="#00f5ff" />
-
-              <label class="label" for="drawEffectBlur">強さ</label>
-              <input id="drawEffectBlur" class="input" type="range" min="0" max="60" value="18" />
-
-              <label class="label" for="drawStrokeColor">枠色</label>
-              <input id="drawStrokeColor" class="input" type="color" value="#000000" />
-
-              <label class="label" for="drawStrokeWidth">枠太さ</label>
-              <input id="drawStrokeWidth" class="input" type="range" min="0" max="12" value="0" />
-              <span id="drawStrokeWidthValue" class="muted" style="min-width:36px;text-align:right;">0</span>
-              <span class="rowBreak" aria-hidden="true"></span>
-            </div>
-          </div>
-
-          <div id="panelSticker" class="panel hidden">
-            <h3 style="margin-top:6px;">使える素材（ステッカー）</h3>
-            <div id="assetGrid" class="assetPicker"></div>
-            <p class="muted">
-              素材はこのフォルダに画像を追加すれば増やせます！<code>assets/stickers/</code>
-            </p>
           </div>
         </div>
 

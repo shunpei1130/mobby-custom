@@ -37,6 +37,7 @@ const viewTimeline = document.getElementById("viewTimeline");
 const topbar = document.querySelector(".topbar");
 
 const userBadge = document.getElementById("userBadge");
+const userBadgeLabel = document.getElementById("userBadgeLabel");
 
 const canvas = document.getElementById("designCanvas");
 const templateSelect = document.getElementById("templateSelect");
@@ -49,7 +50,8 @@ const panelDrawBtn = document.getElementById("panelDrawBtn");
 const panelStickerBtn = document.getElementById("panelStickerBtn");
 const panelDraw = document.getElementById("panelDraw");
 const panelSticker = document.getElementById("panelSticker");
-const designToggle = document.getElementById("designToggle");
+const stickerMenu = document.getElementById("stickerMenu");
+const drawMenu = document.getElementById("drawMenu");
 const adjustPanelHolder = document.getElementById("adjustPanelHolder");
 const adjustPanelBody = document.getElementById("adjustPanelBody");
 const btnUndo = document.getElementById("btnUndo");
@@ -67,6 +69,7 @@ const drawStrokeWidth = document.getElementById("drawStrokeWidth");
 const drawStrokeWidthValue = document.getElementById("drawStrokeWidthValue");
 const toolPen = document.getElementById("toolPen");
 const toolEraser = document.getElementById("toolEraser");
+const btnDrawAdd = document.getElementById("btnDrawAdd");
 
 const publishStatus = document.getElementById("publishStatus");
 
@@ -517,6 +520,24 @@ function setDrawTool(tool) {
   editor.setDrawTool?.(isPen ? "pen" : "eraser");
 }
 
+let drawReady = false;
+function setDrawReady(next) {
+  drawReady = !!next;
+  btnDrawAdd?.classList.toggle("active", drawReady);
+  drawMenu?.classList.toggle("isLocked", drawReady);
+  if (!drawReady) {
+    editor.setDrawMode("select");
+    return;
+  }
+  if (!toolPen?.classList.contains("active") && !toolEraser?.classList.contains("active")) {
+    setDrawTool("pen");
+  }
+  editor.setDrawMode("draw");
+  drawMenu?.classList.remove("isOpen");
+  panelDrawBtn?.classList.remove("active");
+  activeAdjustPanel = null;
+}
+
 penColor?.addEventListener("input", updatePenOptions);
 penSize?.addEventListener("input", updatePenOptions);
 drawEffect?.addEventListener("change", updatePenOptions);
@@ -527,6 +548,7 @@ drawStrokeWidth?.addEventListener("input", updatePenOptions);
 btnClearDraw?.addEventListener("click", () => editor.clearDraw());
 toolPen?.addEventListener("click", () => setDrawTool("pen"));
 toolEraser?.addEventListener("click", () => setDrawTool("eraser"));
+btnDrawAdd?.addEventListener("click", () => setDrawReady(true));
 
 editor.setDrawMode("select");
 updatePenOptions();
@@ -537,10 +559,11 @@ function closeAdjustPanel() {
   activeAdjustPanel = null;
   panelDrawBtn?.classList.remove("active");
   panelStickerBtn?.classList.remove("active");
-  panelDraw?.classList.add("hidden");
-  panelSticker?.classList.add("hidden");
+  drawMenu?.classList.remove("isOpen");
+  stickerMenu?.classList.remove("isOpen");
   editor.setDrawMode("select");
   clearDrawToolSelection();
+  setDrawReady(false);
   editor.resetAssetSelection?.();
 }
 
@@ -554,23 +577,32 @@ function setAdjustPanel(panel) {
   const isSticker = panel === "sticker";
   panelDrawBtn?.classList.toggle("active", isDraw);
   panelStickerBtn?.classList.toggle("active", isSticker);
-  panelDraw?.classList.toggle("hidden", !isDraw);
-  panelSticker?.classList.toggle("hidden", !isSticker);
-  editor.setDrawMode(isDraw ? "draw" : "select");
+  drawMenu?.classList.toggle("isOpen", isDraw);
+  stickerMenu?.classList.toggle("isOpen", isSticker);
+  if (isDraw) {
+    setDrawReady(false);
+  } else {
+    editor.setDrawMode("select");
+  }
   clearDrawToolSelection();
   if (isSticker) editor.resetAssetSelection?.();
 }
 
 panelDrawBtn?.addEventListener("click", () => setAdjustPanel("draw"));
 panelStickerBtn?.addEventListener("click", () => setAdjustPanel("sticker"));
-designToggle?.addEventListener("click", () => {
-  const expanded = designToggle.getAttribute("aria-expanded") === "true";
-  designToggle.setAttribute("aria-expanded", String(!expanded));
-  adjustPanelHolder?.classList.toggle("hidden", expanded);
-  adjustPanelBody?.classList.toggle("hidden", expanded);
-  if (!expanded) {
-    setAdjustPanel("sticker");
-  }
+document.addEventListener("pointerdown", (e) => {
+  const stickerOpen = stickerMenu?.classList.contains("isOpen");
+  const drawOpen = drawMenu?.classList.contains("isOpen");
+  if (!stickerOpen && !drawOpen) return;
+  if (stickerMenu?.contains(e.target) || drawMenu?.contains(e.target)) return;
+  panelStickerBtn?.classList.remove("active");
+  panelDrawBtn?.classList.remove("active");
+  stickerMenu?.classList.remove("isOpen");
+  drawMenu?.classList.remove("isOpen");
+  activeAdjustPanel = null;
+  editor.setDrawMode("select");
+  setDrawReady(false);
+  editor.resetAssetSelection?.();
 });
 
 let gallery = null;
@@ -593,6 +625,10 @@ tabGallery?.addEventListener("click", async () => {
   syncRankFilterOptions();
 });
 tabProfile?.addEventListener("click", async () => {
+  showProfile();
+  await loadProfileView();
+});
+userBadge?.addEventListener("click", async () => {
   showProfile();
   await loadProfileView();
 });
@@ -741,7 +777,9 @@ function setDesignUiEnabled(enabled) {
 }
 
 function syncAuthUi(user) {
-  if (userBadge) {
+  if (userBadgeLabel) {
+    userBadgeLabel.textContent = user ? "ログイン中" : "未ログイン";
+  } else if (userBadge) {
     userBadge.textContent = user ? "ログイン中" : "未ログイン";
   }
   btnLogin?.classList.toggle("hidden", !!user);
@@ -766,6 +804,7 @@ function syncAvatarFromProfile(profile, user) {
 
 syncAuthUi(null);
 
+
 function getUserLabel(profile, user) {
   if (profile?.username) return profile.username;
   if (profile?.displayName) return profile.displayName;
@@ -775,13 +814,22 @@ function getUserLabel(profile, user) {
 }
 
 function updateUserBadgeFromProfile(profile, user) {
-  if (!userBadge) return;
+  if (!userBadge && !userBadgeLabel) return;
   if (!user) {
-    userBadge.textContent = "未ログイン";
+    if (userBadgeLabel) {
+      userBadgeLabel.textContent = "未ログイン";
+    } else if (userBadge) {
+      userBadge.textContent = "未ログイン";
+    }
     return;
   }
   const name = getUserLabel(profile, user)?.trim();
-  userBadge.textContent = name ? name : "ログイン中";
+  const label = name ? name : "ログイン中";
+  if (userBadgeLabel) {
+    userBadgeLabel.textContent = label;
+  } else if (userBadge) {
+    userBadge.textContent = label;
+  }
 }
 function syncRankFilterOptions() {
   if (!rankFilter || !gallery) return;

@@ -76,7 +76,8 @@ body{
 .muted{color:var(--muted)}
 .deviceDesktop{display:inline}
 .deviceMobile{display:none}
-.badge{padding:6px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-size:12px;background:rgba(255,255,255,.6)}
+.badge{padding:6px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-size:12px;background:rgba(255,255,255,.6);cursor:pointer;font:inherit;display:inline-flex;align-items:center;gap:8px}
+.badgeAvatar{width:22px;height:22px;border-radius:999px}
 .avatar{
   width:32px;
   height:32px;
@@ -107,6 +108,18 @@ body{
 .btn.primary{border-color:rgba(255,140,100,.45); background:linear-gradient(180deg, var(--primary), var(--primary2)); color:#3a1f15}
 .btn.primary:hover{filter:brightness(1.05)}
 .iconBtn{border:1px solid var(--border);background:rgba(255,255,255,.7);color:var(--text);border-radius:12px;padding:8px 10px;cursor:pointer}
+.iconActionBtn{
+  height:28px;
+  width:28px;
+  min-width:28px;
+  padding:0;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  line-height:1;
+}
 
 .input,.select{
   border:1px solid var(--border);
@@ -162,7 +175,7 @@ body{
   margin-bottom:10px;
 }
 .hidden{display:none !important}
-.panelTabs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.panelTabs{display:flex;gap:8px;flex-wrap:wrap;margin:0}
 .panelTab{
   border:1px solid var(--border);
   background:rgba(255,255,255,.75);
@@ -175,9 +188,54 @@ body{
   align-items:center;
   justify-content:space-between;
   gap:10px;
+  flex-wrap:wrap;
+  position:relative;
 }
-.panelHeader h2{margin:0}
+.panelHeader h2{margin:0;font-size:14px;font-weight:700;writing-mode:horizontal-tb;white-space:nowrap;flex:0 0 auto}
 .panelActions{display:flex;gap:8px;flex-wrap:wrap}
+.stickerMenu,
+.drawMenu{position:static}
+.stickerPanel,
+.drawPanel{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:50%;
+  right:auto;
+  transform:translateX(-50%);
+  min-width:260px;
+  max-width:min(320px, 90vw);
+  z-index:6;
+  display:none;
+}
+.drawPanel{flex-direction:column}
+.drawHeader{
+  position:sticky;
+  top:0;
+  z-index:2;
+  margin:-12px -12px 6px;
+  padding:12px 12px 6px;
+  background:rgba(255,255,255,.92);
+  border-bottom:1px solid var(--border);
+}
+.toolGroup{
+  display:inline-flex;
+  gap:6px;
+  align-items:center;
+}
+.stickerMenu:hover .stickerPanel,
+.stickerMenu.isOpen .stickerPanel,
+.drawMenu:hover .drawPanel,
+.drawMenu.isOpen .drawPanel{
+  display:block;
+}
+.drawMenu:hover .drawPanel,
+.drawMenu.isOpen .drawPanel{
+  display:flex;
+}
+.drawMenu.isLocked .drawPanel,
+.drawMenu.isLocked:hover .drawPanel{
+  display:none !important;
+}
 .panelTab.active{
   background:linear-gradient(180deg, rgba(255,208,176,.85), rgba(255,184,150,.9));
   border-color:rgba(255,140,100,.45);
@@ -219,6 +277,7 @@ canvas{display:block;width:100%;height:auto;touch-action:pan-y}
   display:flex;
   flex-direction:column;
   gap:10px;
+  position:relative;
 }
 .assetTabs{
   display:flex;
@@ -306,6 +365,10 @@ canvas{display:block;width:100%;height:auto;touch-action:pan-y}
   flex:0 0 120px;
   scroll-snap-align:start;
 }
+.assetRow .asset.selected{
+  border-color:rgba(255,140,100,.55);
+  box-shadow:0 0 0 2px rgba(255,200,160,.4);
+}
 .asset img{width:100%;height:90px;object-fit:contain}
 .asset span{font-size:12px;color:var(--muted);text-align:center}
 .asset.locked{
@@ -328,6 +391,20 @@ canvas{display:block;width:100%;height:auto;touch-action:pan-y}
   -webkit-text-fill-color:rgba(20,20,20,.85);
   background:#ffd400;
   border:1px solid #e4b900;
+}
+.assetActions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:4px;
+}
+.assetAddBtn{
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+}
+.assetAddBtn:disabled{
+  opacity:.5;
+  cursor:not-allowed;
 }
 
 .galleryGrid{
@@ -792,7 +869,7 @@ canvas{display:block;width:100%;height:auto;touch-action:pan-y}
 }
 @media (max-width: 900px){
   .topbar{flex-wrap:wrap;gap:10px}
-  .right{order:2;width:100%;flex-wrap:wrap;justify-content:flex-start}
+  .right{order:2;width:100%;flex-wrap:nowrap;justify-content:flex-start}
   .tabs{order:3;width:100%;display:flex;justify-content:flex-start}
   .brand{order:1}
   .grid2{grid-template-columns:1fr}
@@ -805,10 +882,24 @@ canvas{display:block;width:100%;height:auto;touch-action:pan-y}
   .container{padding:18px}
   .grid2{grid-template-columns:1fr;width:100%;gap:18px;}
   .card{width:100%}
+  .designCard{padding:10px 14px}
+  .designCard .canvasWrap{width:clamp(220px, 74vw, 320px); margin:8px auto;}
   .row{flex-direction:column;align-items:stretch}
   .input,.select,.btn{width:100%}
   .panelActions{width:100%}
   .panelActions .btn{flex:1}
+  .panelActions .iconActionBtn{flex:0 0 auto;width:32px}
+  .panelHeader{flex-wrap:nowrap;align-items:center;gap:8px}
+  .panelActions{width:auto}
+  .panelTabs{margin-left:8px;flex-wrap:nowrap}
+  .panelTab{padding:6px 10px;font-size:12px}
+  .drawPanel{max-height:60vh;overflow:auto}
+  .drawPanel .row{margin:6px 0}
+  .drawPanel .label{font-size:11px}
+  .drawPanel .input,
+  .drawPanel .select,
+  .drawPanel .btn{height:34px}
+  .assetRow{padding:2px 12px 8px;scroll-padding:0 12px}
   .deviceDesktop{display:none}
   .deviceMobile{display:inline}
   .home .title{font-size:28px}

@@ -1130,12 +1130,43 @@
     const empty = document.createElement("p");
     empty.className = "muted assetEmpty";
     empty.textContent = "カテゴリを選択してください。";
+    const actions = document.createElement("div");
+    actions.className = "assetActions";
+    const addBtn = document.createElement("button");
+    addBtn.className = "btn assetAddBtn";
+    addBtn.type = "button";
+    addBtn.textContent = "追加";
+    addBtn.disabled = true;
+    actions.appendChild(addBtn);
 
     const tabButtons = new Map();
     let activeKey = null;
+    let selectedAsset = null;
+    let selectedAssetButton = null;
+
+    function setSelectedAsset(button) {
+      if (!button) return;
+      const assetUrl = button.dataset.assetUrl || "";
+      const assetName = button.dataset.assetName || "";
+      const asset = assetList.find((item) => item.url === assetUrl && item.name === assetName)
+        || { url: assetUrl, name: assetName, locked: button.dataset.assetLocked === "1" };
+      if (selectedAssetButton) selectedAssetButton.classList.remove("selected");
+      selectedAssetButton = button;
+      selectedAsset = asset;
+      selectedAssetButton.classList.add("selected");
+      addBtn.disabled = !selectedAsset;
+    }
+
+    function clearSelectedAsset() {
+      if (selectedAssetButton) selectedAssetButton.classList.remove("selected");
+      selectedAssetButton = null;
+      selectedAsset = null;
+      addBtn.disabled = true;
+    }
 
     function renderGroup(key) {
       row.innerHTML = "";
+      clearSelectedAsset();
       const items = grouped.get(key) || [];
       const sorted = [...items].sort((a, b) => {
         const aLocked = !!a.locked;
@@ -1158,6 +1189,7 @@
         div.innerHTML = `<img src="${a.url}" alt=""><span>${a.name}</span>`;
         div.dataset.assetUrl = a.url;
         div.dataset.assetName = a.name;
+        div.dataset.assetLocked = a.locked ? "1" : "0";
         if (a.locked) {
           div.classList.add("locked");
           div.setAttribute("aria-disabled", "true");
@@ -1168,20 +1200,13 @@
             badge.textContent = badgeText;
             div.appendChild(badge);
           }
-          div.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              if (onUnlock) onUnlock(a);
-            }
-          });
-        } else {
-          div.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              addAsset(a.url, a.name);
-            }
-          });
         }
+        div.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setSelectedAsset(div);
+          }
+        });
         row.appendChild(div);
       }
     }
@@ -1197,6 +1222,7 @@
       row.classList.add("hidden");
       empty.textContent = "カテゴリを選択してください。";
       empty.classList.remove("hidden");
+      clearSelectedAsset();
       updateTabs();
     }
 
@@ -1216,12 +1242,12 @@
     assetGrid.appendChild(tabs);
     assetGrid.appendChild(row);
     assetGrid.appendChild(empty);
+    assetGrid.appendChild(actions);
 
     let isDragScroll = false;
     let dragStartX = 0;
     let dragStartLeft = 0;
     let dragMoved = false;
-    let pendingUnlockAsset = null;
     let pendingAssetButton = null;
     row.addEventListener("pointerdown", (e) => {
       if (e.button !== 0) return;
@@ -1230,9 +1256,7 @@
       dragStartX = e.clientX;
       dragStartLeft = row.scrollLeft;
       const assetButton = e.target.closest(".asset");
-      const lockedBtn = assetButton?.closest(".asset.locked");
-      pendingUnlockAsset = lockedBtn ? lockedBtn.dataset.assetName : null;
-      pendingAssetButton = assetButton && !assetButton.classList.contains("locked") ? assetButton : null;
+      pendingAssetButton = assetButton ? assetButton : null;
       row.setPointerCapture(e.pointerId);
     });
     row.addEventListener("pointermove", (e) => {
@@ -1245,20 +1269,12 @@
     row.addEventListener("pointerup", () => {
       isDragScroll = false;
       if (!dragMoved && pendingAssetButton) {
-        const assetUrl = pendingAssetButton.dataset.assetUrl;
-        const assetName = pendingAssetButton.dataset.assetName;
-        if (assetUrl) addAsset(assetUrl, assetName);
+        setSelectedAsset(pendingAssetButton);
       }
-      if (!dragMoved && pendingUnlockAsset && onUnlock) {
-        const asset = assetList.find((item) => item.name === pendingUnlockAsset);
-        if (asset) onUnlock(asset);
-      }
-      pendingUnlockAsset = null;
       pendingAssetButton = null;
     });
     row.addEventListener("pointercancel", () => {
       isDragScroll = false;
-      pendingUnlockAsset = null;
       pendingAssetButton = null;
     });
     row.addEventListener("wheel", (e) => {
@@ -1266,6 +1282,15 @@
       row.scrollLeft += e.deltaY;
       e.preventDefault();
     }, { passive: false });
+
+    addBtn.addEventListener("click", () => {
+      if (!selectedAsset) return;
+      if (selectedAsset.locked) {
+        if (onUnlock) onUnlock(selectedAsset);
+        return;
+      }
+      if (selectedAsset.url) addAsset(selectedAsset.url, selectedAsset.name);
+    });
 
     resetAssetSelectionCallback = resetAssetSelection;
     resetAssetSelection();
