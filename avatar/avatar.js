@@ -112,6 +112,30 @@ function getCanvasCenter() {
   };
 }
 
+const imageSizeCache = new Map();
+function getImageSize(src) {
+  if (!src) return Promise.resolve(null);
+  if (imageSizeCache.has(src)) return imageSizeCache.get(src);
+  const promise = new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve({ w: img.width, h: img.height });
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+  imageSizeCache.set(src, promise);
+  return promise;
+}
+
+async function getFitScale(src, ratio = 0.86) {
+  const size = await getImageSize(src);
+  if (!size) return 0.9;
+  const target = Math.min(canvas.width, canvas.height) * ratio;
+  const maxDim = Math.max(size.w, size.h);
+  if (!maxDim) return 0.9;
+  return Math.min(1, target / maxDim);
+}
+
 async function applySelections(forceLayout = false) {
   const typeName = typeSelect.value || TYPE_LIST[0];
   const name = clampText(nameInput.value, 20);
@@ -125,15 +149,17 @@ async function applySelections(forceLayout = false) {
   if (decoAlphaLabel) decoAlphaLabel.textContent = String(decoAlphaValue);
 
   const center = getCanvasCenter();
+  const baseSrc = getStickerSrc(typeName);
+  const baseScale = await getFitScale(baseSrc, 0.86);
 
   try {
     await editor.upsertImage({
       id: "base",
-      src: getStickerSrc(typeName),
+      src: baseSrc,
       name: typeName,
       x: center.x,
       y: center.y,
-      s: 0.9,
+      s: baseScale,
       r: 0,
       opacity: 1,
       forceLayout
@@ -143,14 +169,16 @@ async function applySelections(forceLayout = false) {
   }
 
   if (decoId && decoId !== "none") {
+    const decoSrc = getDecoSrc(decoId);
+    const decoScale = await getFitScale(decoSrc, 0.86);
     try {
       await editor.upsertImage({
         id: "deco",
-        src: getDecoSrc(decoId),
+        src: decoSrc,
         name: decoId,
         x: center.x,
         y: center.y,
-        s: 0.9,
+        s: decoScale,
         r: 0,
         opacity: decoOpacity,
         forceLayout

@@ -209,7 +209,6 @@ const btnLogin = document.getElementById("btnLogin");
 const btnLogout = document.getElementById("btnLogout");
 const userAvatar = document.getElementById("userAvatar");
 
-const btnAvatar = document.getElementById("btnAvatar");
 const avatarModal = document.getElementById("avatarModal");
 const avatarModalClose = document.getElementById("avatarModalClose");
 const avatarFrame = document.getElementById("avatarFrame");
@@ -1734,7 +1733,16 @@ profileInviteCopy?.addEventListener("click", async () => {
     alert("コピーに失敗: " + e.message);
   }
 });
-btnAvatar?.addEventListener("click", () => {
+profileAvatar?.addEventListener("click", () => {
+  if (!uid) {
+    alert("ログインが必要です。");
+    return;
+  }
+  avatarModal?.showModal();
+});
+profileAvatar?.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
   if (!uid) {
     alert("ログインが必要です。");
     return;

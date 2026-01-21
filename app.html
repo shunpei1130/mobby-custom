@@ -141,16 +141,16 @@
       <div class="card">
         <div class="row" style="justify-content:space-between;align-items:center;">
           <h2 style="margin:0;">タイムライン</h2>
-          <div class="row timelineControls" style="margin:0;gap:8px;">
-            <select id="timelineFilter" class="select" aria-label="タイムラインフィルター">
-              <option value="all">すべて</option>
-            </select>
-            <button id="btnTimelineRefresh" class="btn" type="button">更新</button>
-          </div>
+          <select id="timelineFilter" class="select" aria-label="タイムラインフィルター">
+            <option value="all">すべて</option>
+          </select>
         </div>
-        <div class="timelineTabs">
+        <div class="row timelineControls" style="margin:0 0 8px;gap:8px;">
+          <button id="btnTimelineRefresh" class="btn" type="button">更新</button>
           <button id="timelineTabRecommend" class="tab active" type="button">おすすめ</button>
           <button id="timelineTabFollowing" class="tab" type="button">フォロー中</button>
+        </div>
+        <div class="timelineTabs">
           <div id="timelineSearchWrap" class="timelineSearchWrap timelineSearchInline">
             <input id="timelineSearchInput" class="input" placeholder="ID検索" />
             <button id="timelineSearchBtn" class="tab" type="button">ID検索</button>
@@ -179,8 +179,7 @@
         <div class="profileHeader">
           <div class="profileAvatarWrap">
             <div class="profileAvatarStage">
-              <img id="profileAvatar" class="avatar profileAvatar" alt="プロフィール画像" />
-              <button id="btnAvatar" class="btn avatarBtn" type="button">✎</button>
+              <img id="profileAvatar" class="avatar profileAvatar" alt="プロフィール画像" role="button" tabindex="0" aria-label="アイコンを変更" />
             </div>
           </div>
           <div class="profileMeta">
