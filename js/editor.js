@@ -38,6 +38,7 @@
   let viewOffsetY = 0;
   const MIN_VIEW_SCALE = 0.8;
   const MAX_VIEW_SCALE = 2.6;
+  const VIEW_SCALE_SNAP = 0.03;
   const DESIGN_INSET_RATIO = 0.08;
   const activePointers = new Map();
   const sampleSpacing = 2;
@@ -687,12 +688,26 @@
     return drawMode !== "draw";
   }
 
+  function resetViewIfClose() {
+    if (Math.abs(viewScale - 1) > VIEW_SCALE_SNAP) return false;
+    viewScale = 1;
+    viewOffsetX = 0;
+    viewOffsetY = 0;
+    return true;
+  }
+
   function applyViewScale(nextScale, centerX, centerY) {
-    const clamped = clampViewScale(nextScale);
+    let clamped = clampViewScale(nextScale);
+    const shouldSnap = Math.abs(clamped - 1) <= VIEW_SCALE_SNAP;
+    if (shouldSnap) clamped = 1;
     const ratio = clamped / viewScale;
     viewOffsetX = centerX - (centerX - viewOffsetX) * ratio;
     viewOffsetY = centerY - (centerY - viewOffsetY) * ratio;
     viewScale = clamped;
+    if (shouldSnap) {
+      viewOffsetX = 0;
+      viewOffsetY = 0;
+    }
   }
 
   function maybeStartPinch() {
@@ -811,12 +826,17 @@
     if (touchPinch && touchPinch.type === "object") {
       pushHistory();
     }
+    if (touchPinch && touchPinch.type === "view") {
+      if (resetViewIfClose()) draw();
+    }
     touchPinch = null;
   });
 
   canvas.addEventListener("pointerdown", (e) => {
     if (e.pointerType !== "touch") {
       canvas.setPointerCapture(e.pointerId);
+    } else {
+      canvas.style.touchAction = "none";
     }
     const { x, y } = updatePointer(e);
     if (maybeStartPinch()) {
@@ -918,7 +938,7 @@
 
   canvas.addEventListener("pointermove", (e) => {
     updatePointer(e);
-    if (e.pointerType === "touch" && (drawing || drag || rotateDrag || scaleDrag || pinch || erasing)) {
+    if (e.pointerType === "touch" && (activePointers.size >= 2 || drawing || drag || rotateDrag || scaleDrag || pinch || erasing)) {
       e.preventDefault();
     }
     if (pinch && activePointers.size === 2) {
@@ -1007,9 +1027,16 @@
 
   canvas.addEventListener("pointerup", (e) => {
     activePointers.delete(e.pointerId);
+    if (activePointers.size === 0) {
+      canvas.style.touchAction = "pan-y";
+    }
     if (pinch && activePointers.size < 2) {
+      const wasViewPinch = pinch.type === "view";
       const shouldSave = pinch.type === "object";
       pinch = null;
+      if (wasViewPinch && resetViewIfClose()) {
+        draw();
+      }
       if (shouldSave) pushHistory();
       return;
     }
@@ -1038,6 +1065,7 @@
   });
   canvas.addEventListener("pointercancel", () => {
     activePointers.clear();
+    canvas.style.touchAction = "pan-y";
     drawing = null;
     drag = null;
     rotateDrag = null;
