@@ -72,6 +72,21 @@ const toolEraser = document.getElementById("toolEraser");
 const btnDrawAdd = document.getElementById("btnDrawAdd");
 
 const publishStatus = document.getElementById("publishStatus");
+const mobileMq = window.matchMedia("(max-width: 900px)");
+let isCanvasInteracting = false;
+
+function setCanvasInteracting(next) {
+  if (!mobileMq.matches) return;
+  isCanvasInteracting = !!next;
+  document.body?.classList.toggle("canvasInteracting", isCanvasInteracting);
+  if (canvas) {
+    canvas.style.touchAction = isCanvasInteracting ? "none" : "pan-y";
+  }
+}
+
+canvas?.addEventListener("touchstart", () => setCanvasInteracting(true), { passive: true });
+canvas?.addEventListener("touchend", () => setCanvasInteracting(false));
+canvas?.addEventListener("touchcancel", () => setCanvasInteracting(false));
 
 async function createThumbDataUrl(sourceCanvas, size = 320) {
   const canvas = document.createElement("canvas");

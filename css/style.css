@@ -291,6 +291,7 @@ body{
   opacity:.35;
 }
 canvas{display:block;width:100%;height:auto;touch-action:pan-y}
+.canvasInteracting{overflow:hidden}
 
 .assetPicker{
   display:flex;
