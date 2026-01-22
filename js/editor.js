@@ -1237,17 +1237,6 @@
     markCanvas.height = canvas.height;
     const markCtx = markCanvas.getContext("2d");
     markCtx.drawImage(canvas, 0, 0);
-    const watermarkReady = await ensureWatermarkLoaded();
-    if (watermarkReady && watermarkImg.naturalWidth) {
-      const targetW = Math.max(120, Math.round(markCanvas.width * 0.28));
-      const scale = targetW / watermarkImg.naturalWidth;
-      const targetH = Math.round(watermarkImg.naturalHeight * scale);
-      const x = Math.round((markCanvas.width - targetW) / 2);
-      const y = Math.round((markCanvas.height - targetH) / 2);
-      markCtx.globalAlpha = 0.75;
-      markCtx.drawImage(watermarkImg, x, y, targetW, targetH);
-      markCtx.globalAlpha = 1;
-    }
     let blob = await new Promise((resolve) => markCanvas.toBlob(resolve, "image/png", 1.0));
     if (!blob) {
       const dataUrl = markCanvas.toDataURL("image/png");
