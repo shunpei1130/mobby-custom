@@ -47,6 +47,7 @@ const canvasModeToggle = document.getElementById("canvasModeToggle");
 const canvasWrap = document.querySelector(".canvasWrap");
 const btnModeMove = document.getElementById("btnModeMove");
 const btnModeDraw = document.getElementById("btnModeDraw");
+const designZoom = document.getElementById("designZoom");
 const templateSelect = document.getElementById("templateSelect");
 const assetGrid = document.getElementById("assetGrid");
 const btnClear = document.getElementById("btnClear");
@@ -394,6 +395,7 @@ function showDesign() {
   viewTimeline?.classList.add("hidden");
   requestAnimationFrame(() => {
     editor.fitCanvas?.();
+    syncDesignZoomSlider();
   });
 }
 function showGallery() {
@@ -499,6 +501,62 @@ function refreshStickerAssets(profile) {
 
 refreshStickerAssets(null);
 editor.fitCanvas();
+const DESIGN_ZOOM_STEP = 0.45;
+const DESIGN_DOUBLE_TAP_DELAY = 320;
+const DESIGN_DOUBLE_TAP_DISTANCE = 24;
+let lastDesignTap = { time: 0, x: 0, y: 0 };
+
+function syncDesignZoomSlider(nextScale) {
+  if (!designZoom || !editor.getViewScale) return;
+  const scale = Number.isFinite(nextScale) ? nextScale : editor.getViewScale();
+  designZoom.value = String(scale);
+}
+
+function setDesignZoomScale(nextScale, options = {}) {
+  if (mobileMq.matches || !editor.setViewScale) return null;
+  const scale = editor.setViewScale(nextScale, options);
+  syncDesignZoomSlider(scale);
+  return scale;
+}
+
+if (designZoom && editor.getViewScaleRange) {
+  const range = editor.getViewScaleRange();
+  designZoom.min = String(range.min);
+  designZoom.max = String(range.max);
+  designZoom.step = "0.05";
+  syncDesignZoomSlider();
+  designZoom.addEventListener("input", (e) => {
+    if (mobileMq.matches) return;
+    const value = Number(e.target.value);
+    setDesignZoomScale(value);
+  });
+}
+
+canvas?.addEventListener("dblclick", (e) => {
+  if (mobileMq.matches || !editor.getViewScale || !editor.getViewScaleRange) return;
+  e.preventDefault();
+  const range = editor.getViewScaleRange();
+  const current = editor.getViewScale();
+  const nextScale = Math.min(range.max, current + DESIGN_ZOOM_STEP);
+  setDesignZoomScale(nextScale, { clientX: e.clientX, clientY: e.clientY });
+});
+canvas?.addEventListener("pointerup", (e) => {
+  if (mobileMq.matches || e.pointerType !== "touch" || !e.isPrimary) return;
+  const now = performance.now();
+  const delta = now - lastDesignTap.time;
+  const distance = Math.hypot(e.clientX - lastDesignTap.x, e.clientY - lastDesignTap.y);
+  if (delta <= DESIGN_DOUBLE_TAP_DELAY && distance <= DESIGN_DOUBLE_TAP_DISTANCE) {
+    lastDesignTap = { time: 0, x: 0, y: 0 };
+    if (!editor.getViewScale || !editor.getViewScaleRange) return;
+    const range = editor.getViewScaleRange();
+    const current = editor.getViewScale();
+    const nextScale = Math.min(range.max, current + DESIGN_ZOOM_STEP);
+    setDesignZoomScale(nextScale, { clientX: e.clientX, clientY: e.clientY });
+    e.preventDefault();
+    return;
+  }
+  lastDesignTap = { time: now, x: e.clientX, y: e.clientY };
+});
 if (canvasWrap && typeof ResizeObserver !== "undefined") {
   canvasResizeObserver = new ResizeObserver((entries) => {
     if (viewDesign?.classList.contains("hidden")) return;
@@ -542,6 +600,7 @@ async function restoreDraft(state) {
       templateSelect.value = state.template;
     }
     await editor.setState?.(state);
+    syncDesignZoomSlider();
     return true;
   } catch (e) {
     console.warn("draft restore failed", e);
@@ -573,6 +632,7 @@ if (draftState && draftModal) {
     } else {
       editor.clearAll?.();
     }
+    syncDesignZoomSlider();
     draftModal.close();
   });
 }

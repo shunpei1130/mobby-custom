@@ -784,6 +784,31 @@
     syncTemplatePreviewTransform();
   }
 
+  function getViewScale() {
+    return viewScale;
+  }
+
+  function getViewScaleRange() {
+    return { min: MIN_VIEW_SCALE, max: MAX_VIEW_SCALE };
+  }
+
+  function setViewScale(nextScale, options = {}) {
+    if (!Number.isFinite(nextScale)) return viewScale;
+    let centerX = canvas.width / 2;
+    let centerY = canvas.height / 2;
+    if (Number.isFinite(options.clientX) && Number.isFinite(options.clientY)) {
+      const screen = toCanvasScreenCoordsFromPoint(options.clientX, options.clientY);
+      centerX = screen.x;
+      centerY = screen.y;
+    } else if (Number.isFinite(options.centerX) && Number.isFinite(options.centerY)) {
+      centerX = options.centerX;
+      centerY = options.centerY;
+    }
+    applyViewScale(nextScale, centerX, centerY);
+    draw();
+    return viewScale;
+  }
+
   function maybeStartPinch() {
     if (activePointers.size !== 2) return false;
     const points = Array.from(activePointers.values());
@@ -1779,6 +1804,9 @@
     exportPngBlob,
     getUsedAssetNames,
     getState,
+    getViewScale,
+    getViewScaleRange,
+    setViewScale,
     setDrawMode,
     setPenOptions,
     setEraserOptions,

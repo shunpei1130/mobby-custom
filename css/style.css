@@ -332,6 +332,22 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   border-radius:999px;
   font-size:12px;
 }
+.designZoomControl{
+  display:none;
+  align-items:center;
+  gap:12px;
+  width:min(520px, 88%);
+  margin:4px auto 12px;
+}
+.designZoomControl .label{
+  margin:0;
+  font-size:12px;
+}
+.designZoomSlider{
+  flex:1;
+  accent-color:var(--primary2);
+  cursor:pointer;
+}
 
 .assetPicker{
   display:flex;
@@ -1122,6 +1138,10 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   border-radius:14px;
   border:1px solid rgba(255,255,255,.12);
   display:block;
+}
+@media (min-width: 901px){
+  .designCard .canvasWrap{width:clamp(360px, 48vw, 560px); margin:12px auto;}
+  .designZoomControl{display:flex;}
 }
 @media (max-width: 900px){
   .topbar{flex-wrap:wrap;gap:10px}
