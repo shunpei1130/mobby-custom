@@ -1261,7 +1261,11 @@ const MANUAL_PURCHASE_ITEMS = [
     id: "manual-1",
     title: "モビー サンライズT",
     price: 3200,
-    image: DEFAULT_PURCHASE_IMAGE,
+    image: "assets/ikati/イカチ―・パコ1.png",
+    images: [
+      "assets/ikati/イカチ―・パコ1.png",
+      "assets/ikati/イカチ―・パコ2.png"
+    ],
     note: "ホワイト / コットン100%",
     tag: "サンプル"
   },
@@ -1269,7 +1273,11 @@ const MANUAL_PURCHASE_ITEMS = [
     id: "manual-2",
     title: "モビー ポップロゴT",
     price: 3300,
-    image: DEFAULT_PURCHASE_IMAGE,
+    image: "assets/ikati/イカチ―・ピコ1.png",
+    images: [
+      "assets/ikati/イカチ―・ピコ1.png",
+      "assets/ikati/イカチ―・ピコ2.png"
+    ],
     note: "ピーチ / ライトオンス",
     tag: "サンプル"
   },
@@ -1277,7 +1285,11 @@ const MANUAL_PURCHASE_ITEMS = [
     id: "manual-3",
     title: "モビー ナイトスカイT",
     price: 3500,
-    image: DEFAULT_PURCHASE_IMAGE,
+    image: "assets/ikati/イカチー・ンコ1.png",
+    images: [
+      "assets/ikati/イカチー・ンコ1.png",
+      "assets/ikati/イカチー・ンコ2.png"
+    ],
     note: "ネイビー / ビッグシルエット",
     tag: "サンプル"
   },
@@ -1305,17 +1317,61 @@ function formatPrice(value) {
   return `¥${price.toLocaleString("ja-JP")}`;
 }
 
-function openPurchasePreview(src, title) {
+function openPurchasePreview(images = [], title) {
   if (!modal || !modalBody) return;
+  const safeImages = (Array.isArray(images) && images.length ? images : [DEFAULT_PURCHASE_IMAGE])
+    .filter(Boolean);
+  const startIndex = 0;
+  const controlsHtml = safeImages
+    .map((src, idx) => `
+      <button class="btn purchasePreviewThumb${idx === 0 ? " active" : ""}" type="button" data-index="${idx}" aria-pressed="${idx === 0 ? "true" : "false"}">
+        <img src="${src}" alt="">
+        <span>${idx + 1}</span>
+      </button>
+    `)
+    .join("");
   modalBody.innerHTML = `
     <div class="purchasePreview">
-      <img class="purchasePreviewImage" src="${src}" alt="${title || "Tシャツ"}">
+      <img class="purchasePreviewImage" src="${safeImages[startIndex]}" alt="${title || "Tシャツ"}">
+      <div class="purchasePreviewControls" role="group" aria-label="画像を選択">
+        ${controlsHtml}
+      </div>
+      <div class="purchasePreviewIndex">1 / ${safeImages.length}</div>
     </div>
   `;
+  const img = modalBody.querySelector(".purchasePreviewImage");
+  const controls = modalBody.querySelector(".purchasePreviewControls");
+  const indexEl = modalBody.querySelector(".purchasePreviewIndex");
+  const btns = controls ? Array.from(controls.querySelectorAll(".purchasePreviewThumb")) : [];
+  if (safeImages.length <= 1) {
+    if (controls) controls.classList.add("hidden");
+    if (indexEl) indexEl.classList.add("hidden");
+  } else {
+    let current = startIndex;
+    const render = () => {
+      if (!img) return;
+      img.src = safeImages[current];
+      if (indexEl) indexEl.textContent = `${current + 1} / ${safeImages.length}`;
+      btns.forEach((btn) => {
+        const isActive = Number(btn.dataset.index) === current;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    };
+    btns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const nextIndex = Number(btn.dataset.index);
+        if (Number.isNaN(nextIndex)) return;
+        current = nextIndex;
+        render();
+      });
+    });
+    render();
+  }
   modal.showModal();
 }
 
-function createPurchaseCard({ title, image, meta, price, badges }) {
+function createPurchaseCard({ title, image, images, meta, price, badges }) {
   const card = document.createElement("div");
   card.className = "purchaseItem";
 
@@ -1329,7 +1385,8 @@ function createPurchaseCard({ title, image, meta, price, badges }) {
   img.loading = "lazy";
   imageBtn.appendChild(img);
   imageBtn.addEventListener("click", () => {
-    openPurchasePreview(img.src, img.alt);
+    const list = Array.isArray(images) && images.length ? images : [img.src];
+    openPurchasePreview(list, img.alt);
   });
   card.appendChild(imageBtn);
 
@@ -1464,6 +1521,7 @@ function renderManualPurchaseItems() {
     const card = createPurchaseCard({
       title: item.title,
       image: item.image,
+      images: item.images,
       meta: item.note,
       price: item.price,
       badges

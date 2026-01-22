@@ -959,6 +959,8 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   justify-content:center;
   align-items:center;
   padding:10px;
+  flex-direction:column;
+  gap:8px;
 }
 .purchasePreviewImage{
   width:min(520px, 80vw);
@@ -967,6 +969,41 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   border-radius:16px;
   border:1px solid rgba(121,93,72,.22);
   background:rgba(255,255,255,.75);
+}
+.purchasePreviewControls{
+  display:flex;
+  gap:8px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  padding:2px 4px;
+  scroll-snap-type:x proximity;
+  justify-content:center;
+}
+.purchasePreviewThumb{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  align-items:center;
+  padding:6px;
+  border-radius:12px;
+  min-width:64px;
+  font-size:11px;
+}
+.purchasePreviewThumb img{
+  width:56px;
+  height:56px;
+  border-radius:10px;
+  object-fit:cover;
+  border:1px solid rgba(121,93,72,.18);
+  background:rgba(255,255,255,.85);
+}
+.purchasePreviewThumb.active{
+  border-color:rgba(255,140,100,.55);
+  box-shadow:0 0 0 2px rgba(255,200,160,.4);
+}
+.purchasePreviewIndex{
+  font-size:12px;
+  color:var(--muted);
 }
 .purchaseBody{
   padding:10px;
@@ -1163,7 +1200,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   .designZoomControl{display:flex;}
 }
 @media (max-width: 900px){
-  .topbar{flex-wrap:wrap;gap:10px}
+  .topbar{flex-wrap:wrap;gap:2px}
   .right{order:2;width:100%;flex-wrap:nowrap;justify-content:flex-start}
   .tabs{order:3;width:100%;display:flex;justify-content:flex-start}
   .topbarLeft{order:1;width:100%;flex-wrap:nowrap;white-space:nowrap}
