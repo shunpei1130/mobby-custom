@@ -50,7 +50,8 @@ body{
   background:rgba(255,248,240,.85);backdrop-filter: blur(10px);
 }
 .brand{color:var(--text);text-decoration:none;opacity:.9}
-.topbarLeft{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-start;flex-direction:row}
+.topbarLeft{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-start;flex-direction:row;flex:1;min-width:0}
+.topbarLeft #userBadge{margin-left:auto}
 .right{margin-left:auto;display:flex;align-items:center;gap:10px;order:2}
 .tabs{display:flex;gap:8px;flex-wrap:wrap;order:3;width:100%}
 .tab{
@@ -96,6 +97,10 @@ body{
   color:var(--text);
   padding:8px 10px;border-radius:14px;
   cursor:pointer;
+}
+#btnLogout{
+  width:auto;
+  min-width:0;
 }
 .btn:hover{background:rgba(255,255,255,.9)}
 .btn.active{
@@ -1178,6 +1183,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   .profileIdRow .countBtn{height:26px}
   .inviteCodeBadge,.invitePointsBadge{height:22px;font-size:10px}
   .inviteCopyBtn{height:22px;width:22px;min-width:22px}
+  #btnLogout{width:auto}
 }
 @media (max-width: 420px){
   .assetRow .asset{flex-basis:96px}

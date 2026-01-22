@@ -753,7 +753,7 @@ let timelineFilterValue = "all";
 let invitePrompted = false;
 let activeAdjustPanel = null;
 let drawModeUiEnabled = false;
-let purchasePanelMode = "own";
+let purchasePanelMode = "manual";
 
 tabDesign?.addEventListener("click", showDesign);
 tabGallery?.addEventListener("click", async () => {

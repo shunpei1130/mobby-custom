@@ -3,18 +3,490 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Clothes Design Hub</title>
+  <title>Design & Gallery</title>
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body class="bg">
-  <main class="container home">
-    <h1 class="title">Clothes Design Hub</h1>
-    <p class="lead">素材を組み合わせて服をデザイン → 投稿 → みんながいいね/コメント → ランキング表示</p>
-
-    <div class="card">
-      <a class="btn primary" href="./app.html">デザインして投稿する / みんなの作品を見る</a>
-      <p class="muted" style="margin-top:10px;">※投稿・いいね・コメントは匿名でできます。</p>
+  <header class="topbar">
+    <div class="topbarLeft">
+      <a class="brand" href="./index.html">Home</a>
+      <button id="userBadge" class="badge" type="button" aria-label="プロフィールを開く">
+        <img id="userAvatar" class="avatar badgeAvatar hidden" alt="ユーザーアイコン" />
+        <span id="userBadgeLabel">login...</span>
+      </button>
+      <button id="btnLogout" class="btn" type="button">ログアウト</button>
     </div>
+    <div class="right">
+      <button id="btnLogin" class="btn" type="button">Googleログイン</button>
+    </div>
+    <nav class="tabs">
+      <button id="tabDesign" class="tab">デザイン</button>
+      <button id="tabGallery" class="tab active">ランキング</button>
+      <button id="tabPurchase" class="tab">購入</button>
+      <button id="tabTimeline" class="tab">タイムライン</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- DESIGN -->
+    <section id="viewDesign" class="grid2 hidden">
+      <div class="card designCard">
+        <div id="adjustPanelBody" class="adjustPanelBody panelContent">
+          <div class="panelHeader">
+            <div class="panelActions">
+              <button id="btnUndo" class="btn iconActionBtn" type="button" aria-label="戻す">↶</button>
+              <button id="btnRedo" class="btn iconActionBtn" type="button" aria-label="進める">↷</button>
+            </div>
+            <div class="panelTabs">
+              <div id="stickerMenu" class="stickerMenu">
+                <button id="panelStickerBtn" class="panelTab" type="button">ステッカー</button>
+                <div id="panelSticker" class="panel stickerPanel panelContent">
+                  <h3 style="margin-top:6px;">使える素材（ステッカー）</h3>
+                  <div id="assetGrid" class="assetPicker"></div>
+                </div>
+              </div>
+              <div id="drawMenu" class="drawMenu">
+                <button id="panelDrawBtn" class="panelTab" type="button">手書き</button>
+                <div id="panelDraw" class="panel drawPanel panelContent">
+                  <div class="drawGroup">
+                    <div class="drawGroupTitle">ツール</div>
+                    <div class="row">
+                      <span class="toolGroup">
+                        <button id="toolPen" class="btn active" type="button">ペン</button>
+                        <button id="toolEraser" class="btn" type="button">消しゴム</button>
+                      </span>
+                      <button id="btnClearDraw" class="btn" type="button">手書きを消す</button>
+                    </div>
+                  </div>
+
+                  <div class="drawGroup">
+                    <div class="drawGroupTitle">ペン設定</div>
+                    <div class="row">
+                      <label class="label" for="penColor">ペン色</label>
+                      <input id="penColor" class="input" type="color" value="#3a2f26" />
+
+                      <label class="label" for="penSize">太さ</label>
+                      <input id="penSize" class="input" type="range" min="1" max="40" value="6" />
+                      </div>
+                  </div>
+
+                  <div class="drawGroup">
+                    <div class="drawGroupTitle">エフェクト</div>
+                    <div class="row">
+                      <label class="label" for="drawEffect">種類</label>
+                      <select id="drawEffect" class="select">
+                        <option value="none">なし</option>
+                        <option value="shadow">シャドウ</option>
+                        <option value="glow">グロウ</option>
+                      </select>
+
+                      <label class="label" for="drawEffectColor">効果色</label>
+                      <input id="drawEffectColor" class="input" type="color" value="#00f5ff" />
+
+                      <label class="label" for="drawEffectBlur">強さ</label>
+                      <input id="drawEffectBlur" class="input" type="range" min="0" max="60" value="18" />
+
+                      <label class="label" for="drawStrokeColor">枠色</label>
+                      <input id="drawStrokeColor" class="input" type="color" value="#000000" />
+
+                      <label class="label" for="drawStrokeWidth">枠太さ</label>
+                      <input id="drawStrokeWidth" class="input" type="range" min="0" max="12" value="0" />
+                      <span class="rowBreak" aria-hidden="true"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="canvasWrap">
+          <canvas id="designCanvas" width="900" height="900"></canvas>
+          <div class="templatePreview">
+            <img src="assets/templates/tshirt.png" alt="テンプレート Tシャツ" />
+          </div>
+          <div id="canvasModeToggle" class="canvasModeToggle" role="group" aria-label="編集モード">
+            <button id="btnModeMove" class="btn modeBtn active" type="button">移動</button>
+            <button id="btnModeDraw" class="btn modeBtn" type="button">描画</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <input id="titleInput" class="input" maxlength="40" placeholder="作品タイトル（任意）" />
+          <button id="btnPublish" class="btn primary" type="button">投稿する</button>
+        </div>
+
+     
+        <div id="publishStatus" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="viewGallery">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">ランキング（いいね順）</h2>
+          <div class="row rankControls" style="margin:0;gap:8px;">
+            <select id="rankFilter" class="select" aria-label="モビー別ランキング">
+              <option value="all">すべて</option>
+            </select>
+            <button id="btnRefresh" class="btn" type="button">更新</button>
+          </div>
+        </div>
+        <div id="galleryGrid" class="galleryGrid"></div>
+        <div id="galleryStatus" class="muted"></div>
+      </div>
+    </section>
+
+    <!-- PURCHASE -->
+    <section id="viewPurchase" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">購入</h2>
+          <span class="muted">購入できるTシャツ一覧</span>
+        </div>
+
+        <div class="purchaseTabs">
+          <button id="purchaseTabOwn" class="tab" type="button">自分の投稿</button>
+          <button id="purchaseTabManual" class="tab active" type="button">オフィシャルグッズ</button>
+          <button id="purchaseTabTop" class="tab" type="button">ランキング</button>
+        </div>
+
+        <div id="purchasePanelOwn" class="purchasePanel hidden">
+          <div class="purchaseSection">
+            <div class="purchaseHeader">
+              <h3 style="margin:0;">自分の投稿</h3>
+              <span class="muted">あなたのデザイン</span>
+            </div>
+            <div id="purchaseOwnStatus" class="muted"></div>
+            <div id="purchaseOwnGrid" class="purchaseGrid"></div>
+          </div>
+        </div>
+
+        <div id="purchasePanelManual" class="purchasePanel">
+          <div class="purchaseSection">
+            <div class="purchaseHeader">
+              <h3 style="margin:0;">オフィシャルグッズ</h3>
+            </div>
+            <div id="purchaseManualGrid" class="purchaseGrid"></div>
+          </div>
+        </div>
+
+        <div id="purchasePanelTop" class="purchasePanel hidden">
+          <div class="purchaseSection">
+            <div class="purchaseHeader">
+              <h3 style="margin:0;">ランキング上位</h3>
+            </div>
+            <div id="purchaseTopStatus" class="muted"></div>
+            <div id="purchaseTopGrid" class="purchaseGrid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewTimeline" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">タイムライン</h2>
+          <select id="timelineFilter" class="select" aria-label="タイムラインフィルター">
+            <option value="all">すべて</option>
+          </select>
+        </div>
+        <div class="row timelineControls" style="margin:0 0 8px;gap:8px;">
+          <button id="btnTimelineRefresh" class="btn" type="button">更新</button>
+          <button id="timelineTabRecommend" class="tab active" type="button">おすすめ</button>
+          <button id="timelineTabFollowing" class="tab" type="button">フォロー中</button>
+        </div>
+        <div class="timelineTabs">
+          <div id="timelineSearchWrap" class="timelineSearchWrap timelineSearchInline">
+            <input id="timelineSearchInput" class="input" placeholder="ID検索" />
+            <button id="timelineSearchBtn" class="tab" type="button">ID検索</button>
+          </div>
+        </div>
+        <div id="timelineSearchResults" class="timelineSearchResults hidden">
+          <div id="timelineSearchStatus" class="muted"></div>
+          <div id="timelineSearchList" class="userList"></div>
+        </div>
+        <div id="timelinePanels" class="timelinePanels">
+          <div id="timelinePanelRecommend" class="timelineBox">
+            <div id="timelineRecommend" class="galleryGrid"></div>
+            <div id="timelineRecommendStatus" class="muted"></div>
+          </div>
+          <div id="timelinePanelFollowing" class="timelineBox hidden">
+            <div id="timelineFollowing" class="galleryGrid"></div>
+            <div id="timelineFollowingStatus" class="muted"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="viewProfile" class="hidden">
+      <div class="card profileCard">
+        <div class="profileHeader">
+          <div class="profileAvatarWrap">
+            <div class="profileAvatarStage">
+              <img id="profileAvatar" class="avatar profileAvatar" alt="プロフィール画像" role="button" tabindex="0" aria-label="アイコンを変更" />
+            </div>
+          </div>
+          <div class="profileMeta">
+            <div class="profileIdRow">
+              <span id="profileRankBadge" class="rankBadge small hidden" aria-label="ランキング"></span>
+              <button id="profileUid" class="countBtn" type="button">id: -</button>
+              <button id="idReset" class="btn iconMiniBtn" type="button" title="ID変更">✎</button>
+              <span id="profileInviteCode" class="inviteCodeBadge hidden"></span>
+              <button id="profileInviteCopy" class="btn iconMiniBtn inviteCopyBtn hidden" type="button" title="招待コードをコピー">⧉</button>
+              <span id="profileInvitePoints" class="invitePointsBadge hidden"></span>
+            </div>
+            <div class="profileCounts">
+              <button id="profileFollowingBtn" class="countBtn" type="button"><strong id="profileFollowingCount">0</strong> フォロー中</button>
+              <button id="profileFollowersBtn" class="countBtn" type="button"><strong id="profileFollowersCount">0</strong> フォロワー</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="profileBox">
+          <div class="row">
+            <label class="label" for="profileName">表示名</label>
+            <input id="profileName" class="input" maxlength="32" placeholder="表示名" />
+            <label class="label" for="profileBio">ひとこと</label>
+            <textarea id="profileBio" class="input textarea" rows="3" maxlength="160" placeholder="自己紹介"></textarea>
+            <button id="profileSave" class="btn primary" type="button">保存</button>
+          </div>
+          <div id="profileStatus" class="muted"></div>
+        </div>
+
+        <div class="profileBox">
+          <div class="profileDesignsSection">
+            <h3 class="profileListTitle">自分の投稿</h3>
+            <div id="profileDesignsStatus" class="muted"></div>
+            <div id="profileDesigns" class="profileDesigns"></div>
+          </div>
+        </div>
+
+        <div class="profileLists hidden">
+          <div>
+            <h3 class="profileListTitle">フォロー中</h3>
+            <div id="followingList" class="userList"></div>
+          </div>
+          <div>
+            <h3 class="profileListTitle">フォロワー</h3>
+            <div id="followersList" class="userList"></div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <!-- Modal -->
+  <dialog id="modal" class="modal">
+    <div class="modalInner">
+      <button id="modalClose" class="iconBtn" type="button">×</button>
+      <div id="modalBody"></div>
+    </div>
+  </dialog>
+
+  <dialog id="profileModal" class="modal">
+    <div class="modalInner">
+      <button id="profileModalClose" class="iconBtn" type="button">×</button>
+      <div id="profileModalBody"></div>
+    </div>
+  </dialog>
+
+  <dialog id="followListModal" class="modal">
+    <div class="modalInner">
+      <button id="followListModalClose" class="iconBtn" type="button">×</button>
+      <h3 id="followListTitle" style="margin:0 0 10px;"></h3>
+      <div id="followListBody" class="userList"></div>
+    </div>
+  </dialog>
+
+  <dialog id="nicknameModal" class="modal">
+    <div class="modalInner">
+      <h3 style="margin:0 0 8px;">ニックネーム登録</h3>
+      <p class="muted" style="margin:0 0 12px;">ランキングやプロフィールに表示されます。</p>
+      <div class="row" style="margin-top:0;">
+        <input id="nicknameInput" class="input" maxlength="32" placeholder="ニックネーム" style="flex:1" />
+        <button id="nicknameSave" class="btn primary" type="button">保存</button>
+      </div>
+      <div id="nicknameStatus" class="muted"></div>
+    </div>
+  </dialog>
+
+  <dialog id="idModal" class="modal">
+    <div class="modalInner">
+      <button id="idModalClose" class="iconBtn" type="button">×</button>
+      <h3 style="margin:0 0 8px;">ユーザーID登録</h3>
+      <p class="muted" style="margin:0 0 12px;">ログイン後に必ず設定が必要です。英数字とアンダーバーのみ（3〜20文字）。</p>
+      <div class="row" style="margin-top:0;">
+        <input id="idInput" class="input" maxlength="20" placeholder="例: mobby_user01" style="flex:1" />
+        <button id="idSave" class="btn primary" type="button">保存</button>
+      </div>
+      <div id="idStatus" class="muted"></div>
+    </div>
+  </dialog>
+
+  <dialog id="avatarModal" class="modal">
+    <div class="modalInner avatarModalInner">
+      <button id="avatarModalClose" class="iconBtn" type="button">×</button>
+      <div class="avatarModalBody">
+        <iframe id="avatarFrame" src="avatar/index.html" title="アイコン作成" loading="lazy"></iframe>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="termsModal" class="modal">
+    <div class="modalInner termsModalInner">
+      <button id="termsModalClose" class="iconBtn" type="button">×</button>
+      <h3 style="margin:0 0 8px;">利用規約</h3>
+      <p class="muted" style="margin:0 0 10px;">利用規約・デザイン利用条件・プライバシーポリシー（統合版）</p>
+      <div id="termsContent" class="termsContent">
+        <p>【プロジェクトモビー｜モビーTシャツデザイン作成サイト】</p>
+        <p>利用規約・デザイン利用条件・プライバシーポリシー（統合版）</p>
+        <p>施行日：2026/1/21</p>
+        <p>バージョン：ver.1.0</p>
+        <p>運営者：プロジェクトモビー（以下「当方」）</p>
+        <p>────────────────────────────────────</p>
+        <p>第1部　利用規約</p>
+        <p>────────────────────────────────────</p>
+        <p>第1条（適用）</p>
+        <p>1. 本規約は、当方が提供する「モビーTシャツデザイン作成サイト」（以下「本サービス」）の利用条件を定めるものです。</p>
+        <p>2. ユーザーは、本規約および第2部「デザイン利用条件」、第3部「プライバシーポリシー」に同意のうえ、本サービスを利用するものとします。</p>
+        <p>3. 本サービス内で当方が別途表示するルール、注意事項、ガイド等は、本規約の一部を構成します。</p>
+        <p>第2条（定義）</p>
+        <p>本規約において使用する用語は、以下のとおり定義します。</p>
+        <p>1. 「ユーザー」：本サービスにGoogleログインして利用する者</p>
+        <p>2. 「ゲスト」：ログインせず閲覧のみ行う者</p>
+        <p>3. 「提供素材」：本サービス上で当方が提供するキャラクター、ロゴ、ステッカー、装飾、テンプレート、UI、文章、画像その他一切の素材</p>
+        <p>4. 「ユーザー要素」：ユーザーが入力・作成した文字、手書き、配置情報等（ユーザーが本サービス上で作成・送信した情報）</p>
+        <p>5. 「本デザイン」：提供素材とユーザー要素、配置、配色、レイアウト等を組み合わせて本サービス内で作成されたデザイン一式（データ・画像・見た目を含む）</p>
+        <p>6. 「デザインデータ」：本デザインを再現・表示するためのJSON等のデータ</p>
+        <p>第3条（アカウント・利用範囲）</p>
+        <p>1. 本サービスの編集機能（作成・編集・保存等）はGoogleログインユーザーのみが利用できます。ゲストは閲覧のみ可能です。</p>
+        <p>2. ユーザーは、自己の責任においてログイン情報を管理するものとします。</p>
+        <p>3. 当方は、ログイン状態や利用状況に応じて、本サービスの機能・表示・提供範囲を変更することがあります。</p>
+        <p>第4条（提供素材・権利帰属）</p>
+        <p>1. 提供素材に関する権利は当方に帰属します（または当方が利用許諾を得ている場合は当該権利者に帰属します）。</p>
+        <p>2. 提供素材はAI生成を含みます。提供素材について、当方は完全な独自性・非侵害性を保証しません。</p>
+        <p>3. ユーザーは、本サービス上で本デザインを作成・閲覧・注文（将来提供される場合を含む）する目的の範囲でのみ、提供素材を利用できます。第2部「デザイン利用条件」に反する利用はできません。</p>
+        <p>第5条（ユーザー要素・当方への許諾）</p>
+        <p>1. ユーザー要素に関する権利は、原則としてユーザーに留保されます。</p>
+        <p>2. ユーザーは当方に対し、本サービスの提供・運営に必要な範囲（保存、表示、編集、バックアップ、問い合わせ対応、不正防止、障害対応、将来の購入機能の提供に必要な処理を含む）で、ユーザー要素およびデザインデータを利用する非独占的な権利を許諾します。</p>
+        <p>3. ユーザーは、ユーザー要素が第三者の権利（著作権、商標権、肖像権、プライバシー権等）を侵害しないことを保証します。</p>
+        <p>第6条（公開・共有）</p>
+        <p>1. 本サービスは、ユーザーが作成した本デザインの全部または一部を、当方が定める方法により、他のユーザーまたはゲストが閲覧可能な形で表示する場合があります（例：ギャラリー表示、ランキング表示等）。</p>
+        <p>2. ユーザーは、前項の表示が行われうることに同意するものとします。</p>
+        <p>3. ただし、公開範囲や公開可否の設定が本サービス上に用意されている場合、当該設定が優先されます。</p>
+        <p>第7条（禁止事項）</p>
+        <p>ユーザーは以下の行為をしてはなりません。</p>
+        <p>1. 提供素材・本デザイン・デザインデータの抽出、複製、再配布、転載、販売、改変、リバースエンジニアリング、スクレイピング等</p>
+        <p>2. 本サービスの同意画面・認証・権限制御・アクセス制御等を回避する行為</p>
+        <p>3. 第2部「デザイン利用条件」で禁止される利用（外部印刷サービス等での製造・販売・配布を含む）</p>
+        <p>4. 第三者の権利を侵害する行為、または侵害のおそれのある行為</p>
+        <p>5. 法令または公序良俗に反する行為</p>
+        <p>6. 不正アクセス、過度な負荷をかける行為、サービス運営を妨害する行為</p>
+        <p>7. 反社会的勢力への利益供与、またはこれに準ずる行為</p>
+        <p>8. その他、当方が不適切と判断する行為</p>
+        <p>第8条（サービスの変更・停止）</p>
+        <p>当方は、ユーザーへの事前通知なく、本サービスの内容変更、追加、停止、終了を行うことがあります。</p>
+        <p>第9条（利用停止・削除）</p>
+        <p>当方は、ユーザーが本規約に違反した場合、または当方が必要と判断した場合、事前通知なく、デザインの削除、表示の停止、利用停止、アカウントの利用制限等の措置を行えるものとします。</p>
+        <p>第10条（免責）</p>
+        <p>1. 当方は、本サービスの正確性、完全性、特定目的適合性、継続性を保証しません。</p>
+        <p>2. 通信障害、外部サービス（Google、Firebase等）の停止・不具合、端末・環境の差異等により生じた損害について、当方の故意または重過失がある場合を除き、責任を負いません。</p>
+        <p>3. 本サービスに関連してユーザー間または第三者との間で生じた紛争は、ユーザーの責任と費用で解決するものとします。</p>
+        <p>第11条（規約の変更）</p>
+        <p>1. 当方は、必要に応じて本規約を変更できます。</p>
+        <p>2. 重要な変更を行う場合、当方は本サービス上で告知し、必要に応じて再同意を求めることがあります。</p>
+        <p>第12条（準拠法・管轄）</p>
+        <p>本規約は日本法に準拠し、本サービスに関して紛争が生じた場合、当方所在地を管轄する裁判所を第一審の専属的合意管轄裁判所とします。</p>
+        <p>────────────────────────────────────</p>
+        <p>第2部　デザイン利用条件（外部利用禁止）</p>
+        <p>────────────────────────────────────</p>
+        <p>第1条（目的）</p>
+        <p>本条件は、本サービス内で作成された本デザインの利用範囲を明確にし、提供素材および本デザインの外部流用（特に外部でのTシャツ等製造・販売）を防止することを目的とします。</p>
+        <p>第2条（許諾される利用）</p>
+        <p>ユーザーは、本デザインを以下の範囲でのみ利用できます。</p>
+        <p>1. 本サービス内での作成、編集、保存、閲覧</p>
+        <p>2. 本サービスが将来提供する正規の購入手段を通じた、当該デザイン商品の注文・購入</p>
+        <p>3. 購入した実物（Tシャツ等）を着用・所持している写真や動画のSNS投稿（ただし、デザインデータそのものの配布は禁止）</p>
+        <p>第3条（禁止される利用：外部Tシャツ化の禁止）</p>
+        <p>ユーザーは、当方の事前の許諾（当方が本サービス上で別途明示する方法を含む）なく、以下を行ってはなりません。</p>
+        <p>1. 本デザインまたは提供素材を、外部の印刷サービス／他社EC／他社グッズ制作等に持ち込み、製造・販売・配布すること</p>
+        <p>2. 本デザインまたは提供素材のデータ（JSON、スクリーンショット、高解像度画像、トレースデータ、再現データ等を含む）を第三者に提供・公開・販売すること</p>
+        <p>3. 本デザインまたは提供素材を用いた素材集・テンプレート・スタンプ等の二次配布物を作成・配布すること</p>
+        <p>4. 商用利用（広告・販促・収益化を伴う利用を含む）</p>
+        <p>5. 「モビー／Mobby」等の名称、ロゴ、キャラクター等を、当方と無関係な商品・サービスの出所表示に用い、誤認混同を生じさせる態様で利用すること</p>
+        <p>第4条（技術的措置）</p>
+        <p>当方は、外部流用防止のため、プレビューへの透かし表示、解像度制限、公開範囲の調整等の技術的措置を行う場合があります。</p>
+        <p>第5条（違反時の措置）</p>
+        <p>当方は、違反が判明した場合、デザイン削除、表示停止、利用停止等を行い、必要に応じて法的措置（差止、損害賠償請求等）を検討します。</p>
+        <p>────────────────────────────────────</p>
+        <p>第3部　プライバシーポリシー</p>
+        <p>────────────────────────────────────</p>
+        <p>第1条（取得する情報）</p>
+        <p>当方は、本サービスの提供にあたり、以下の情報を取得する場合があります。</p>
+        <p>1. Googleログインにより取得される情報（例：ユーザーID、表示名、メールアドレス、プロフィール画像等）</p>
+        <p>2. デザインデータ（文字、手書き、配置情報、その他ユーザー要素）</p>
+        <p>3. アクセスログ（IPアドレス、ブラウザ情報、端末情報、参照元、日時等）</p>
+        <p>4. Cookie等の識別子（利用する場合）</p>
+        <p>第2条（利用目的）</p>
+        <p>取得した情報は、以下の目的で利用します。</p>
+        <p>1. 本人認証、アカウント管理</p>
+        <p>2. 本サービスの提供（保存、表示、編集等）</p>
+        <p>3. 不正利用防止、セキュリティ対応、規約違反対応</p>
+        <p>4. 障害対応、問い合わせ対応</p>
+        <p>5. サービス改善、利用状況の分析（実施する場合）</p>
+        <p>第3条（第三者提供・委託）</p>
+        <p>1. 当方は、法令に基づく場合等を除き、本人同意なく個人情報を第三者に提供しません。</p>
+        <p>2. 本サービスの運営に必要な範囲で、クラウド事業者等に取扱いを委託する場合があります（例：認証・DB・ホスティング等）。この場合、当方は適切な委託先を選定し、必要な監督を行うよう努めます。</p>
+        <p>第4条（安全管理）</p>
+        <p>当方は、取得情報の漏えい、滅失、毀損等を防止するため、合理的な安全管理措置を講じるよう努めます。</p>
+        <p>第5条（保管・削除）</p>
+        <p>当方は、利用目的達成に必要な範囲で情報を保管し、不要となった場合は合理的な方法で削除するよう努めます。</p>
+        <p>第6条（開示等の請求）</p>
+        <p>ユーザーは、法令の定めに従い、自己に関する情報の開示、訂正、利用停止等を求めることができます。手続は当方が本サービス上で別途定める方法によるものとします。</p>
+        <p>第7条（改定）</p>
+        <p>当方は、必要に応じて本ポリシーを変更できます。重要な変更を行う場合、本サービス上で告知し、必要に応じて再同意を求めることがあります。</p>
+        <p>────────────────────────────────────</p>
+        <p>同意について</p>
+        <p>────────────────────────────────────</p>
+        <p>ユーザーは、ログイン時または当方が指定する方法により、本規約（第1部～第3部）に同意したうえで本サービスを利用します。</p>
+      </div>
+      <label id="termsAgreeRow" class="termsAgreeRow hidden">
+        <input id="termsAgree" type="checkbox" />
+        <span>利用規約に同意します</span>
+      </label>
+      <button id="termsAccept" class="btn primary" type="button" disabled>同意して登録</button>
+    </div>
+  </dialog>
+
+  <dialog id="draftModal" class="modal">
+    <div class="modalInner">
+      <h3 style="margin:0 0 8px;">前回の編集を続けますか？</h3>
+      <p class="muted" style="margin:0 0 12px;">途中で保存されたデザインが見つかりました。</p>
+      <div class="row" style="margin-top:0;">
+        <button id="draftResume" class="btn primary" type="button">はい</button>
+        <button id="draftDiscard" class="btn" type="button">いいえ</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="inviteModal" class="modal">
+    <div class="modalInner inviteModalInner">
+      <button id="inviteModalClose" class="iconBtn" type="button">×</button>
+      <h3 style="margin:0 0 8px;">招待コード</h3>
+      <p class="muted" style="margin:0 0 10px;">初回連携時に入力できます。お持ちの方は入力してください。</p>
+      <div class="row" style="margin-top:0;">
+        <input id="inviteInput" class="input" maxlength="32" placeholder="例: MOBBY-2026" style="flex:1" />
+        <button id="inviteSave" class="btn primary" type="button">保存</button>
+        <button id="inviteSkip" class="btn" type="button">後で</button>
+      </div>
+      <div id="inviteStatus" class="muted"></div>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
