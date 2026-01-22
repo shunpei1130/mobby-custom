@@ -882,14 +882,51 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   display:flex;
   flex-direction:column;
 }
-.purchaseItem.isClickable{
+.purchaseImageBtn{
+  border:0;
+  padding:0;
+  background:transparent;
+  display:block;
+  width:100%;
+  position:relative;
   cursor:pointer;
 }
-.purchaseItem img{
+.purchaseImageBtn::after{
+  content:"拡大";
+  position:absolute;
+  right:8px;
+  bottom:8px;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+  color:#3a1f15;
+  background:rgba(255,224,153,.92);
+  border:1px solid rgba(255,170,90,.7);
+  box-shadow:0 4px 10px rgba(122,84,58,.18);
+}
+.purchaseImageBtn:hover{
+  filter:brightness(1.02);
+}
+.purchaseImageBtn img{
   width:100%;
   aspect-ratio:1/1;
   object-fit:cover;
   display:block;
+}
+.purchasePreview{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:10px;
+}
+.purchasePreviewImage{
+  width:min(520px, 80vw);
+  max-height:70vh;
+  object-fit:contain;
+  border-radius:16px;
+  border:1px solid rgba(121,93,72,.22);
+  background:rgba(255,255,255,.75);
 }
 .purchaseBody{
   padding:10px;

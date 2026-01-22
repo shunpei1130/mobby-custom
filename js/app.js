@@ -1185,15 +1185,33 @@ function formatPrice(value) {
   return `¥${price.toLocaleString("ja-JP")}`;
 }
 
+function openPurchasePreview(src, title) {
+  if (!modal || !modalBody) return;
+  modalBody.innerHTML = `
+    <div class="purchasePreview">
+      <img class="purchasePreviewImage" src="${src}" alt="${title || "Tシャツ"}">
+    </div>
+  `;
+  modal.showModal();
+}
+
 function createPurchaseCard({ title, image, meta, price, badges }) {
   const card = document.createElement("div");
   card.className = "purchaseItem";
+
+  const imageBtn = document.createElement("button");
+  imageBtn.className = "purchaseImageBtn";
+  imageBtn.type = "button";
 
   const img = document.createElement("img");
   img.src = image || DEFAULT_PURCHASE_IMAGE;
   img.alt = title || "Tシャツ";
   img.loading = "lazy";
-  card.appendChild(img);
+  imageBtn.appendChild(img);
+  imageBtn.addEventListener("click", () => {
+    openPurchasePreview(img.src, img.alt);
+  });
+  card.appendChild(imageBtn);
 
   const body = document.createElement("div");
   body.className = "purchaseBody";
