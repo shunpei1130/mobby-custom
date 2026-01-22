@@ -198,6 +198,25 @@ body{
 .adjustPanelBody{
   margin-top:12px;
 }
+.designItemPicker{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:6px 0 12px;
+}
+.templateTabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.templateTab{
+  height:30px;
+  padding:0 12px;
+  border-radius:12px;
+  font-size:12px;
+  line-height:1.2;
+}
 .panelContent{
   border:1px solid var(--border);
   border-radius:18px;
@@ -1161,6 +1180,10 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   .card{width:100%}
   .designCard{padding:10px 14px}
   .designCard .canvasWrap{width:clamp(220px, 74vw, 320px); margin:8px auto;}
+  .designItemPicker{align-items:flex-start}
+  .designItemPicker .label{width:100%}
+  .templateTabs{width:100%}
+  .templateTab{flex:1 1 0;text-align:center}
   .row{flex-direction:column;align-items:stretch}
   .input,.select,.btn{width:100%}
   .rankControls{

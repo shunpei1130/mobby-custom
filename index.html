@@ -102,6 +102,19 @@
 
         </div>
 
+        <div class="designItemPicker">
+          <div class="templateTabs" role="group" aria-label="アイテムを選択">
+            <button class="tab templateTab active" type="button" data-template="assets/templates/tshirt.png" aria-pressed="true">Tシャツ</button>
+            <button class="tab templateTab" type="button" data-template="assets/templates/longt.png" aria-pressed="false">ロンT</button>
+            <button class="tab templateTab" type="button" data-template="assets/templates/pants.png" aria-pressed="false">パンツ</button>
+          </div>
+          <select id="templateSelect" class="select templateSelect hidden" aria-hidden="true">
+            <option value="assets/templates/tshirt.png">Tシャツ</option>
+            <option value="assets/templates/longt.png">ロンT</option>
+            <option value="assets/templates/pants.png">パンツ</option>
+          </select>
+        </div>
+
         <div class="canvasWrap">
           <canvas id="designCanvas" width="900" height="900"></canvas>
           <div class="templatePreview">

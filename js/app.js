@@ -49,6 +49,7 @@ const btnModeMove = document.getElementById("btnModeMove");
 const btnModeDraw = document.getElementById("btnModeDraw");
 const designZoom = document.getElementById("designZoom");
 const templateSelect = document.getElementById("templateSelect");
+const templateTabs = Array.from(document.querySelectorAll(".templateTab"));
 const assetGrid = document.getElementById("assetGrid");
 const btnClear = document.getElementById("btnClear");
 const btnPublish = document.getElementById("btnPublish");
@@ -488,6 +489,50 @@ const DRAFT_KEY = "mobby_design_draft_v1";
 let isRestoringDraft = false;
 let canvasResizeObserver = null;
 
+function getTemplateLabelByValue(value) {
+  if (!value) return "";
+  if (templateSelect?.options?.length) {
+    for (const option of templateSelect.options) {
+      if (option.value === value) return option.textContent?.trim() || "";
+    }
+  }
+  const match = templateTabs.find((tab) => tab.dataset.template === value);
+  return match?.textContent?.trim() || "";
+}
+
+function syncTemplateUi(nextValue) {
+  const value = nextValue || templateSelect?.value || "";
+  if (!value) return;
+  if (templatePreviewImg) {
+    templatePreviewImg.src = value;
+    const label = getTemplateLabelByValue(value);
+    if (label) templatePreviewImg.alt = `テンプレート ${label}`;
+  }
+  if (templateTabs.length) {
+    templateTabs.forEach((tab) => {
+      const isActive = tab.dataset.template === value;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-pressed", isActive ? "true" : "false");
+    });
+  }
+}
+
+function applyTemplateSelection(nextValue) {
+  if (!nextValue) return;
+  const current = templateSelect?.value || "";
+  if (templateSelect) templateSelect.value = nextValue;
+  syncTemplateUi(nextValue);
+  if (templateSelect && current !== nextValue) {
+    templateSelect.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+}
+
+templateTabs.forEach((tab) => {
+  tab.addEventListener("click", () => applyTemplateSelection(tab.dataset.template));
+});
+templateSelect?.addEventListener("change", () => syncTemplateUi());
+syncTemplateUi();
+
 function syncInvitePoints(nextPoints) {
   if (profileInvitePoints) {
     profileInvitePoints.textContent = `ポイント: ${Number(nextPoints || 0)}`;
@@ -598,6 +643,7 @@ async function restoreDraft(state) {
     isRestoringDraft = true;
     if (state.template && templateSelect) {
       templateSelect.value = state.template;
+      syncTemplateUi(state.template);
     }
     await editor.setState?.(state);
     syncDesignZoomSlider();
@@ -632,6 +678,7 @@ if (draftState && draftModal) {
     } else {
       editor.clearAll?.();
     }
+    syncTemplateUi(nextTemplate);
     syncDesignZoomSlider();
     draftModal.close();
   });
