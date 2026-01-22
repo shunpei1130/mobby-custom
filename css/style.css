@@ -832,6 +832,126 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   grid-template-columns:repeat(3, minmax(0, 1fr));
   gap:12px;
 }
+.purchaseSection{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:16px;
+}
+.purchaseTabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:8px 0 12px;
+}
+.purchaseTabs .tab{
+  height:30px;
+  padding:0 12px;
+  border-radius:12px;
+  font-size:12px;
+  white-space:nowrap;
+}
+.purchasePanel{
+  display:block;
+}
+.purchaseSection:first-of-type{
+  margin-top:0;
+}
+.purchaseHeader{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.purchaseDivider{
+  height:1px;
+  background:rgba(121,93,72,.15);
+  margin:4px 0;
+}
+.purchaseGrid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:12px;
+}
+.purchaseItem{
+  border:1px solid var(--border);
+  border-radius:20px;
+  overflow:hidden;
+  background:rgba(255,255,255,.65);
+  display:flex;
+  flex-direction:column;
+}
+.purchaseItem.isClickable{
+  cursor:pointer;
+}
+.purchaseItem img{
+  width:100%;
+  aspect-ratio:1/1;
+  object-fit:cover;
+  display:block;
+}
+.purchaseBody{
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1;
+}
+.purchaseTitle{
+  font-weight:700;
+}
+.purchaseMeta{
+  color:var(--muted);
+  font-size:12px;
+}
+.purchaseBadgeRow{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.purchaseTag{
+  display:inline-flex;
+  align-items:center;
+  height:22px;
+  padding:0 8px;
+  border-radius:999px;
+  border:1px dashed rgba(255,140,100,.55);
+  background:rgba(255,244,232,.8);
+  color:#5a3b2a;
+  font-size:11px;
+  font-weight:700;
+  white-space:nowrap;
+}
+.purchaseRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:4px;
+  margin-top:auto;
+}
+.purchasePriceText{
+  font-weight:700;
+}
+.purchaseBtn{
+  position:relative;
+  font-weight:600;
+  font-size:12px;
+  line-height:1.2;
+  white-space:nowrap;
+}
+.purchaseBtn.locked{
+  cursor:not-allowed;
+  background:rgba(120,120,120,.35);
+  border-color:rgba(90,90,90,.35);
+  color:rgba(20,20,20,.85);
+  opacity:1;
+  filter:none;
+}
+.purchaseBtn.locked .purchaseLabel{
+  opacity:0.7;
+}
 .profileWork{
   border:1px solid var(--border);
   border-radius:20px;
@@ -854,7 +974,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   flex:1 1 0;
   font-weight:600;
   position:relative;
-  padding-right:56px;
+
   font-size:12px;
   line-height:1.2;
   white-space:nowrap;
@@ -894,7 +1014,8 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
 }
 @media (max-width: 640px){
   .profileWorkActions .purchaseBtn{
-    padding-right:64px;
+
+    text-align:center;
   }
   .purchasePrice{
     top:50%;
@@ -970,6 +1091,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   .assetRow .asset{flex-basis:110px}
   .profileLists{grid-template-columns:1fr}
   .profileDesigns{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  .purchaseGrid{grid-template-columns:repeat(2, minmax(0, 1fr))}
 }
 @media (max-width: 640px){
   .container{padding:18px}
@@ -1024,6 +1146,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   .assetRow .asset{flex-basis:96px}
   .galleryGrid{grid-template-columns:1fr}
   .profileDesigns{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  .purchaseGrid{grid-template-columns:repeat(2, minmax(0, 1fr))}
 }
 .profileAvatarStage .avatarBtn{
   width:20px;

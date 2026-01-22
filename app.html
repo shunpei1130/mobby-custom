@@ -22,6 +22,7 @@
     <nav class="tabs">
       <button id="tabDesign" class="tab">デザイン</button>
       <button id="tabGallery" class="tab active">ランキング</button>
+      <button id="tabPurchase" class="tab">購入</button>
       <button id="tabTimeline" class="tab">タイムライン</button>
     </nav>
   </header>
@@ -137,6 +138,54 @@
         <div id="galleryStatus" class="muted"></div>
       </div>
     </section>
+
+    <!-- PURCHASE -->
+    <section id="viewPurchase" class="hidden">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;align-items:center;">
+          <h2 style="margin:0;">購入</h2>
+          <span class="muted">購入できるTシャツ一覧</span>
+        </div>
+
+        <div class="purchaseTabs">
+          <button id="purchaseTabOwn" class="tab active" type="button">自分の投稿</button>
+          <button id="purchaseTabTop" class="tab" type="button">ランキング上位</button>
+          <button id="purchaseTabManual" class="tab" type="button">手動セレクト</button>
+        </div>
+
+        <div id="purchasePanelOwn" class="purchasePanel">
+          <div class="purchaseSection">
+            <div class="purchaseHeader">
+              <h3 style="margin:0;">自分の投稿</h3>
+              <span class="muted">あなたのデザイン</span>
+            </div>
+            <div id="purchaseOwnStatus" class="muted"></div>
+            <div id="purchaseOwnGrid" class="purchaseGrid"></div>
+          </div>
+        </div>
+
+        <div id="purchasePanelTop" class="purchasePanel hidden">
+          <div class="purchaseSection">
+            <div class="purchaseHeader">
+              <h3 style="margin:0;">ランキング上位</h3>
+              <span class="muted">いいね上位3つ</span>
+            </div>
+            <div id="purchaseTopStatus" class="muted"></div>
+            <div id="purchaseTopGrid" class="purchaseGrid"></div>
+          </div>
+        </div>
+
+        <div id="purchasePanelManual" class="purchasePanel hidden">
+          <div class="purchaseSection">
+            <div class="purchaseHeader">
+              <h3 style="margin:0;">手動セレクト</h3>
+            </div>
+            <div id="purchaseManualGrid" class="purchaseGrid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="viewTimeline" class="hidden">
       <div class="card">
         <div class="row" style="justify-content:space-between;align-items:center;">

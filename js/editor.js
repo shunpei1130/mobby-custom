@@ -1301,7 +1301,9 @@
     const addBtn = document.createElement("button");
     addBtn.className = "btn assetAddBtn";
     addBtn.type = "button";
-    addBtn.textContent = "追加";
+    const addBtnLabel = "追加";
+    const unlockBtnLabel = "解放";
+    addBtn.textContent = addBtnLabel;
     addBtn.disabled = true;
     actions.appendChild(addBtn);
 
@@ -1310,24 +1312,49 @@
     let selectedAsset = null;
     let selectedAssetButton = null;
 
+    function updateAddButton() {
+      if (!selectedAsset) {
+        addBtn.disabled = true;
+        addBtn.textContent = addBtnLabel;
+        return;
+      }
+      addBtn.disabled = false;
+      if (selectedAsset.locked) {
+        const price = Number(selectedAsset.price || 0);
+        addBtn.textContent = price ? `${price}ptで解放` : unlockBtnLabel;
+        return;
+      }
+      addBtn.textContent = addBtnLabel;
+    }
+
     function setSelectedAsset(button) {
       if (!button) return;
       const assetUrl = button.dataset.assetUrl || "";
       const assetName = button.dataset.assetName || "";
-      const asset = assetList.find((item) => item.url === assetUrl && item.name === assetName)
-        || { url: assetUrl, name: assetName, locked: button.dataset.assetLocked === "1" };
+      const assetPrice = Number(button.dataset.assetPrice || 0);
+      const assetLocked = button.dataset.assetLocked === "1";
+      const found = assetList.find((item) => item.url === assetUrl && item.name === assetName);
+      const price = Number(found?.price ?? assetPrice ?? 0);
+      const locked = typeof found?.locked === "boolean" ? found.locked : assetLocked;
+      const asset = {
+        ...(found || {}),
+        url: assetUrl,
+        name: assetName,
+        price,
+        locked
+      };
       if (selectedAssetButton) selectedAssetButton.classList.remove("selected");
       selectedAssetButton = button;
       selectedAsset = asset;
       selectedAssetButton.classList.add("selected");
-      addBtn.disabled = !selectedAsset;
+      updateAddButton();
     }
 
     function clearSelectedAsset() {
       if (selectedAssetButton) selectedAssetButton.classList.remove("selected");
       selectedAssetButton = null;
       selectedAsset = null;
-      addBtn.disabled = true;
+      updateAddButton();
     }
 
     function renderGroup(key) {
@@ -1356,6 +1383,7 @@
         div.dataset.assetUrl = a.url;
         div.dataset.assetName = a.name;
         div.dataset.assetLocked = a.locked ? "1" : "0";
+        div.dataset.assetPrice = String(a.price || 0);
         if (a.locked) {
           div.classList.add("locked");
           div.setAttribute("aria-disabled", "true");
@@ -1372,6 +1400,10 @@
             event.preventDefault();
             setSelectedAsset(div);
           }
+        });
+        div.addEventListener("click", () => {
+          if (dragMoved) return;
+          setSelectedAsset(div);
         });
         row.appendChild(div);
       }

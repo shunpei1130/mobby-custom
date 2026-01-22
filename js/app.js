@@ -28,10 +28,12 @@ document.querySelectorAll("dialog").forEach(patchDialog);
 
 const tabDesign = document.getElementById("tabDesign");
 const tabGallery = document.getElementById("tabGallery");
+const tabPurchase = document.getElementById("tabPurchase");
 const tabProfile = document.getElementById("tabProfile");
 const tabTimeline = document.getElementById("tabTimeline");
 const viewDesign = document.getElementById("viewDesign");
 const viewGallery = document.getElementById("viewGallery");
+const viewPurchase = document.getElementById("viewPurchase");
 const viewProfile = document.getElementById("viewProfile");
 const viewTimeline = document.getElementById("viewTimeline");
 const topbar = document.querySelector(".topbar");
@@ -165,6 +167,17 @@ const timelineSearchResults = document.getElementById("timelineSearchResults");
 const timelineSearchStatus = document.getElementById("timelineSearchStatus");
 const timelineSearchList = document.getElementById("timelineSearchList");
 const timelinePanels = document.getElementById("timelinePanels");
+const purchaseOwnGrid = document.getElementById("purchaseOwnGrid");
+const purchaseOwnStatus = document.getElementById("purchaseOwnStatus");
+const purchaseTopGrid = document.getElementById("purchaseTopGrid");
+const purchaseTopStatus = document.getElementById("purchaseTopStatus");
+const purchaseManualGrid = document.getElementById("purchaseManualGrid");
+const purchaseTabOwn = document.getElementById("purchaseTabOwn");
+const purchaseTabTop = document.getElementById("purchaseTabTop");
+const purchaseTabManual = document.getElementById("purchaseTabManual");
+const purchasePanelOwn = document.getElementById("purchasePanelOwn");
+const purchasePanelTop = document.getElementById("purchasePanelTop");
+const purchasePanelManual = document.getElementById("purchasePanelManual");
 
 const profileAvatar = document.getElementById("profileAvatar");
 const profileUid = document.getElementById("profileUid");
@@ -370,10 +383,12 @@ function showDesign() {
   document.body?.classList.add("designLock");
   tabDesign?.classList.add("active");
   tabGallery?.classList.remove("active");
+  tabPurchase?.classList.remove("active");
   tabProfile?.classList.remove("active");
   tabTimeline?.classList.remove("active");
   viewDesign?.classList.remove("hidden");
   viewGallery?.classList.add("hidden");
+  viewPurchase?.classList.add("hidden");
   viewProfile?.classList.add("hidden");
   viewTimeline?.classList.add("hidden");
   requestAnimationFrame(() => {
@@ -384,10 +399,12 @@ function showGallery() {
   document.body?.classList.remove("designLock");
   tabGallery?.classList.add("active");
   tabDesign?.classList.remove("active");
+  tabPurchase?.classList.remove("active");
   tabProfile?.classList.remove("active");
   tabTimeline?.classList.remove("active");
   viewGallery?.classList.remove("hidden");
   viewDesign?.classList.add("hidden");
+  viewPurchase?.classList.add("hidden");
   viewProfile?.classList.add("hidden");
   viewTimeline?.classList.add("hidden");
 }
@@ -396,21 +413,39 @@ function showProfile() {
   tabProfile?.classList.add("active");
   tabDesign?.classList.remove("active");
   tabGallery?.classList.remove("active");
+  tabPurchase?.classList.remove("active");
   tabTimeline?.classList.remove("active");
   viewProfile?.classList.remove("hidden");
   viewDesign?.classList.add("hidden");
   viewGallery?.classList.add("hidden");
+  viewPurchase?.classList.add("hidden");
   viewTimeline?.classList.add("hidden");
+}
+function showPurchase() {
+  document.body?.classList.remove("designLock");
+  tabPurchase?.classList.add("active");
+  tabDesign?.classList.remove("active");
+  tabGallery?.classList.remove("active");
+  tabProfile?.classList.remove("active");
+  tabTimeline?.classList.remove("active");
+  viewPurchase?.classList.remove("hidden");
+  viewDesign?.classList.add("hidden");
+  viewGallery?.classList.add("hidden");
+  viewProfile?.classList.add("hidden");
+  viewTimeline?.classList.add("hidden");
+  showPurchasePanel(purchasePanelMode);
 }
 function showTimeline() {
   document.body?.classList.remove("designLock");
   tabTimeline?.classList.add("active");
   tabDesign?.classList.remove("active");
   tabGallery?.classList.remove("active");
+  tabPurchase?.classList.remove("active");
   tabProfile?.classList.remove("active");
   viewTimeline?.classList.remove("hidden");
   viewDesign?.classList.add("hidden");
   viewGallery?.classList.add("hidden");
+  viewPurchase?.classList.add("hidden");
   viewProfile?.classList.add("hidden");
   showTimelinePanel("recommend");
 }
@@ -423,6 +458,16 @@ function showTimelinePanel(panel) {
   timelineSearchBtn?.classList.remove("active");
   timelineSearchResults?.classList.add("hidden");
   timelinePanels?.classList.remove("hidden");
+}
+
+function showPurchasePanel(panel) {
+  const mode = panel || "own";
+  purchaseTabOwn?.classList.toggle("active", mode === "own");
+  purchaseTabTop?.classList.toggle("active", mode === "top");
+  purchaseTabManual?.classList.toggle("active", mode === "manual");
+  purchasePanelOwn?.classList.toggle("hidden", mode !== "own");
+  purchasePanelTop?.classList.toggle("hidden", mode !== "top");
+  purchasePanelManual?.classList.toggle("hidden", mode !== "manual");
 }
 
 function showTimelineSearchMode() {
@@ -708,12 +753,18 @@ let timelineFilterValue = "all";
 let invitePrompted = false;
 let activeAdjustPanel = null;
 let drawModeUiEnabled = false;
+let purchasePanelMode = "own";
 
 tabDesign?.addEventListener("click", showDesign);
 tabGallery?.addEventListener("click", async () => {
   showGallery();
   await gallery?.fetchTop?.();
   syncRankFilterOptions();
+});
+tabPurchase?.addEventListener("click", async () => {
+  showPurchase();
+  showPurchasePanel(purchasePanelMode);
+  await loadPurchaseView();
 });
 tabProfile?.addEventListener("click", async () => {
   showProfile();
@@ -729,6 +780,18 @@ tabTimeline?.addEventListener("click", () => {
 });
 timelineTabRecommend?.addEventListener("click", () => showTimelinePanel("recommend"));
 timelineTabFollowing?.addEventListener("click", () => showTimelinePanel("following"));
+purchaseTabOwn?.addEventListener("click", () => {
+  purchasePanelMode = "own";
+  showPurchasePanel("own");
+});
+purchaseTabTop?.addEventListener("click", () => {
+  purchasePanelMode = "top";
+  showPurchasePanel("top");
+});
+purchaseTabManual?.addEventListener("click", () => {
+  purchasePanelMode = "manual";
+  showPurchasePanel("manual");
+});
 btnRefresh?.addEventListener("click", async () => {
   await gallery?.fetchTop?.();
   syncRankFilterOptions();
@@ -1071,6 +1134,211 @@ async function refreshTimeline() {
   renderTimelineList(timelineFollowingDocs, timelineFollowing, timelineFollowingStatus);
 }
 
+const DEFAULT_PURCHASE_PRICE = 3200;
+const DEFAULT_PURCHASE_IMAGE = "assets/templates/tshirt.png";
+const MANUAL_PURCHASE_ITEMS = [
+  {
+    id: "manual-1",
+    title: "モビー サンライズT",
+    price: 3200,
+    image: DEFAULT_PURCHASE_IMAGE,
+    note: "ホワイト / コットン100%",
+    tag: "サンプル"
+  },
+  {
+    id: "manual-2",
+    title: "モビー ポップロゴT",
+    price: 3300,
+    image: DEFAULT_PURCHASE_IMAGE,
+    note: "ピーチ / ライトオンス",
+    tag: "サンプル"
+  },
+  {
+    id: "manual-3",
+    title: "モビー ナイトスカイT",
+    price: 3500,
+    image: DEFAULT_PURCHASE_IMAGE,
+    note: "ネイビー / ビッグシルエット",
+    tag: "サンプル"
+  },
+  {
+    id: "manual-4",
+    title: "モビー リボンT",
+    price: 3100,
+    image: DEFAULT_PURCHASE_IMAGE,
+    note: "クリーム / ソフトタッチ",
+    tag: "サンプル"
+  },
+  {
+    id: "manual-5",
+    title: "モビー シンプルラインT",
+    price: 3000,
+    image: DEFAULT_PURCHASE_IMAGE,
+    note: "アイボリー / ベーシック",
+    tag: "サンプル"
+  }
+];
+
+function formatPrice(value) {
+  const price = Number(value || 0);
+  if (!price) return "";
+  return `¥${price.toLocaleString("ja-JP")}`;
+}
+
+function createPurchaseCard({ title, image, meta, price, badges }) {
+  const card = document.createElement("div");
+  card.className = "purchaseItem";
+
+  const img = document.createElement("img");
+  img.src = image || DEFAULT_PURCHASE_IMAGE;
+  img.alt = title || "Tシャツ";
+  img.loading = "lazy";
+  card.appendChild(img);
+
+  const body = document.createElement("div");
+  body.className = "purchaseBody";
+
+  if (badges?.length) {
+    const badgeRow = document.createElement("div");
+    badgeRow.className = "purchaseBadgeRow";
+    badges.forEach((badge) => {
+      const tag = document.createElement("span");
+      tag.className = badge.className || "purchaseTag";
+      tag.textContent = badge.text || "";
+      badgeRow.appendChild(tag);
+    });
+    body.appendChild(badgeRow);
+  }
+
+  const titleEl = document.createElement("div");
+  titleEl.className = "purchaseTitle";
+  titleEl.textContent = title || "Untitled";
+  body.appendChild(titleEl);
+
+  if (meta) {
+    const metaEl = document.createElement("div");
+    metaEl.className = "purchaseMeta";
+    metaEl.textContent = meta;
+    body.appendChild(metaEl);
+  }
+
+  const row = document.createElement("div");
+  row.className = "purchaseRow";
+
+  const priceEl = document.createElement("div");
+  priceEl.className = "purchasePriceText";
+  priceEl.textContent = formatPrice(price || DEFAULT_PURCHASE_PRICE);
+  row.appendChild(priceEl);
+
+  const buyBtn = document.createElement("button");
+  buyBtn.className = "btn primary purchaseBtn";
+  buyBtn.type = "button";
+  buyBtn.textContent = "購入";
+  row.appendChild(buyBtn);
+
+  body.appendChild(row);
+  card.appendChild(body);
+  return card;
+}
+
+async function renderPurchaseOwn() {
+  if (!purchaseOwnGrid || !purchaseOwnStatus) return;
+  purchaseOwnGrid.innerHTML = "";
+  if (!uid) {
+    purchaseOwnStatus.textContent = "ログインが必要です。";
+    return;
+  }
+  purchaseOwnStatus.textContent = "読み込み中...";
+  try {
+    const designsCol = collection(db, "designs");
+    const q = query(
+      designsCol,
+      where("uid", "==", uid),
+      orderBy("createdAt", "desc"),
+      limit(30)
+    );
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      purchaseOwnStatus.textContent = "まだ投稿がありません。";
+      return;
+    }
+    purchaseOwnStatus.textContent = "";
+    for (const docSnap of snap.docs) {
+      const data = docSnap.data() || {};
+      const likesText = `${Number(data.likes || 0)}`;
+      const dateText = formatDate(data.createdAt);
+      const meta = [likesText, dateText].filter(Boolean).join(" / ");
+      const card = createPurchaseCard({
+        title: data.title || "Untitled",
+        image: data.thumb || data.imageUrl || DEFAULT_PURCHASE_IMAGE,
+        meta,
+        price: DEFAULT_PURCHASE_PRICE
+      });
+      purchaseOwnGrid.appendChild(card);
+    }
+  } catch (e) {
+    console.warn("purchase own fetch failed", e);
+    purchaseOwnStatus.textContent = "読み込みに失敗しました。";
+  }
+}
+
+async function renderPurchaseTop() {
+  if (!purchaseTopGrid || !purchaseTopStatus) return;
+  purchaseTopGrid.innerHTML = "";
+  purchaseTopStatus.textContent = "読み込み中...";
+  try {
+    const designsCol = collection(db, "designs");
+    const q = query(designsCol, orderBy("likes", "desc"), limit(3));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      purchaseTopStatus.textContent = "まだ投稿がありません。";
+      return;
+    }
+    purchaseTopStatus.textContent = "";
+    for (let i = 0; i < snap.docs.length; i += 1) {
+      const docSnap = snap.docs[i];
+      const data = docSnap.data() || {};
+      const rank = i + 1;
+      const authorProfile = await fetchProfile(data.uid);
+      const authorName = authorProfile?.username || authorProfile?.displayName || getFallbackName(data.uid);
+      const likesText = `${Number(data.likes || 0)}`;
+      const meta = [authorName, likesText].filter(Boolean).join(" / ");
+      const card = createPurchaseCard({
+        title: data.title || "Untitled",
+        image: data.thumb || data.imageUrl || DEFAULT_PURCHASE_IMAGE,
+        meta,
+        price: DEFAULT_PURCHASE_PRICE,
+        badges: [{ text: `${rank}位`, className: `rankBadge small rank${rank}` }]
+      });
+      purchaseTopGrid.appendChild(card);
+    }
+  } catch (e) {
+    console.warn("purchase top fetch failed", e);
+    purchaseTopStatus.textContent = "読み込みに失敗しました。";
+  }
+}
+
+function renderManualPurchaseItems() {
+  if (!purchaseManualGrid) return;
+  purchaseManualGrid.innerHTML = "";
+  for (const item of MANUAL_PURCHASE_ITEMS) {
+    const badges = item.tag ? [{ text: item.tag, className: "purchaseTag" }] : [];
+    const card = createPurchaseCard({
+      title: item.title,
+      image: item.image,
+      meta: item.note,
+      price: item.price,
+      badges
+    });
+    purchaseManualGrid.appendChild(card);
+  }
+}
+
+async function loadPurchaseView() {
+  renderManualPurchaseItems();
+  await Promise.all([renderPurchaseOwn(), renderPurchaseTop()]);
+}
+
 async function updateProfileRankBadge(targetUid) {
   if (!profileRankBadge) return;
   profileRankBadge.classList.add("hidden");
@@ -1280,8 +1548,8 @@ async function unlockStickerAsset(asset) {
     alert("ログインが必要です。");
     return;
   }
-  if (!asset || !asset.name || !asset.locked) return;
-  const price = Number(asset.price || 0);
+  if (!asset || !asset.name) return;
+  const price = Number(asset.price || getStickerPrice(asset.name, asset.url) || 0);
   if (!price) return;
   const ok = confirm(`「${asset.name}」を${price}ptで解放しますか？`);
   if (!ok) return;
@@ -1665,6 +1933,9 @@ onAuthStateChanged(auth, async (user) => {
   if (viewGallery && !viewGallery.classList.contains("hidden")) {
     await gallery?.fetchTop?.();
     syncRankFilterOptions();
+  }
+  if (viewPurchase && !viewPurchase.classList.contains("hidden")) {
+    await loadPurchaseView();
   }
   if (viewTimeline && !viewTimeline.classList.contains("hidden")) {
     await refreshTimeline();
