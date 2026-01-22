@@ -223,7 +223,7 @@ body{
   position:relative;
 }
 .panelHeader h2{margin:0;font-size:14px;font-weight:700;writing-mode:horizontal-tb;white-space:nowrap;flex:0 0 auto}
-.panelActions{display:flex;gap:8px;flex-wrap:wrap}
+.panelActions{display:flex;flex-wrap:wrap}
 .stickerMenu,
 .drawMenu{position:static}
 .stickerPanel,

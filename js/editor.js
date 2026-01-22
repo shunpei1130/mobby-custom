@@ -245,6 +245,7 @@
 
   function addAsset(assetUrl, name) {
     const center = getTemplateCenter();
+    const scale = name === "Logo" ? 0.22 : 0.35;
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.onload = () => {
@@ -257,7 +258,7 @@
         src: assetUrl,
         x: center.x,
         y: center.y,
-        s: 0.35,
+        s: scale,
         r: 0,
         opacity: 1,
         w: img.width,

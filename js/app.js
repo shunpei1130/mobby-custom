@@ -55,6 +55,7 @@ const titleInput = document.getElementById("titleInput");
 
 const panelDrawBtn = document.getElementById("panelDrawBtn");
 const panelStickerBtn = document.getElementById("panelStickerBtn");
+const btnDesignReset = document.getElementById("btnDesignReset");
 const panelDraw = document.getElementById("panelDraw");
 const panelSticker = document.getElementById("panelSticker");
 const stickerMenu = document.getElementById("stickerMenu");
@@ -709,6 +710,18 @@ function setAdjustPanel(panel) {
 
 panelDrawBtn?.addEventListener("click", () => setAdjustPanel("draw"));
 panelStickerBtn?.addEventListener("click", () => setAdjustPanel("sticker"));
+btnDesignReset?.addEventListener("click", () => {
+  const ok = confirm("初めからやり直しますか？");
+  if (!ok) return;
+  editor.clearAll?.();
+  if (titleInput) titleInput.value = "";
+  if (publishStatus) publishStatus.textContent = "";
+  try {
+    localStorage.removeItem(DRAFT_KEY);
+  } catch (_) {
+    // ignore
+  }
+});
 assetGrid?.addEventListener("assetadd", () => {
   panelStickerBtn?.classList.remove("active");
   stickerMenu?.classList.remove("isOpen");
@@ -1689,7 +1702,6 @@ async function renderProfileDesigns() {
     return;
   }
   const profile = await fetchProfile(uid);
-  const purchaseRights = new Set(Array.isArray(profile?.purchaseRights) ? profile.purchaseRights : []);
   profileDesignsStatus.textContent = "読み込み中...";
   profileDesigns.innerHTML = "";
   try {
@@ -1726,18 +1738,6 @@ async function renderProfileDesigns() {
       meta.className = "profileWorkMeta";
       meta.textContent = `👍 ${Number(data.likes || 0)} / ${formatDate(data.createdAt)}`;
 
-      const actions = document.createElement("div");
-      actions.className = "profileWorkActions";
-
-      const buyBtn = document.createElement("button");
-      buyBtn.className = "btn smallBtn purchaseBtn";
-      buyBtn.type = "button";
-      buyBtn.setAttribute("aria-disabled", "true");
-      buyBtn.tabIndex = -1;
-      const buyLabel = document.createElement("span");
-      buyLabel.className = "purchaseLabel";
-      buyLabel.textContent = "購入";
-
       const delBtn = document.createElement("button");
       delBtn.className = "btn smallBtn deleteBtn";
       delBtn.type = "button";
@@ -1759,26 +1759,8 @@ async function renderProfileDesigns() {
         }
       });
 
-      if (purchaseRights.has(docSnap.id)) {
-        buyBtn.classList.remove("locked");
-        buyBtn.removeAttribute("aria-disabled");
-        buyBtn.tabIndex = 0;
-        buyLabel.textContent = "購入";
-        buyBtn.appendChild(buyLabel);
-      } else {
-        buyBtn.classList.add("locked");
-        buyLabel.textContent = "購入権";
-        const buyBadge = document.createElement("span");
-        buyBadge.className = "purchasePrice";
-        buyBadge.textContent = "100pt";
-        buyBtn.appendChild(buyLabel);
-        buyBtn.appendChild(buyBadge);
-        buyBtn.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          await unlockPurchaseRight(docSnap.id, buyBtn, buyLabel);
-        });
-      }
-      actions.appendChild(buyBtn);
+      const actions = document.createElement("div");
+      actions.className = "profileWorkActions";
       actions.appendChild(delBtn);
       body.appendChild(title);
       body.appendChild(meta);
