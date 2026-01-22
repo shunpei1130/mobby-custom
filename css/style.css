@@ -841,7 +841,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   background:rgba(255,255,255,.65);
   margin-bottom:12px;
 }
-@media (max-width: 640px){
+@media (max-width: 700px){
   .timelineSearchInline{
     margin-left:0;
     width:100%;
@@ -1089,7 +1089,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   border:1px solid #e4b900;
   opacity:1;
 }
-@media (max-width: 640px){
+@media (max-width: 700px){
   .profileWorkActions .purchaseBtn{
 
     text-align:center;
@@ -1174,7 +1174,7 @@ canvas{display:block;width:100% !important;height:auto !important;touch-action:p
   .profileDesigns{grid-template-columns:repeat(2, minmax(0, 1fr))}
   .purchaseGrid{grid-template-columns:repeat(2, minmax(0, 1fr))}
 }
-@media (max-width: 640px){
+@media (max-width: 700px){
   .container{padding:18px}
   .grid2{grid-template-columns:1fr;width:100%;gap:18px;}
   .card{width:100%}
