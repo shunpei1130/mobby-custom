@@ -1254,13 +1254,13 @@ async function refreshTimeline() {
   renderTimelineList(timelineFollowingDocs, timelineFollowing, timelineFollowingStatus);
 }
 
-const DEFAULT_PURCHASE_PRICE = 3200;
+const DEFAULT_PURCHASE_PRICE = 5000;
 const DEFAULT_PURCHASE_IMAGE = "assets/templates/tshirt.png";
 const MANUAL_PURCHASE_ITEMS = [
   {
     id: "manual-1",
     title: "イカチ―・パコ",
-    price: 3200,
+    price: 5000,
     image: "assets/ikati/イカチ―・パコ1.png",
     images: [
       "assets/ikati/イカチ―・パコ1.png",
@@ -1271,7 +1271,7 @@ const MANUAL_PURCHASE_ITEMS = [
   {
     id: "manual-2",
     title: "イカチ―・ピコ",
-    price: 3300,
+    price: 5000,
     image: "assets/ikati/イカチ―・ピコ1.png",
     images: [
       "assets/ikati/イカチ―・ピコ1.png",
@@ -1282,7 +1282,7 @@ const MANUAL_PURCHASE_ITEMS = [
   {
     id: "manual-3",
     title: "イカチー・ンコ",
-    price: 3500,
+    price: 5000,
     image: "assets/ikati/イカチー・ンコ1.png",
     images: [
       "assets/ikati/イカチー・ンコ1.png",
@@ -1293,14 +1293,14 @@ const MANUAL_PURCHASE_ITEMS = [
   {
     id: "manual-4",
     title: "モビー リボンT",
-    price: 3100,
+    price: 5000,
     image: DEFAULT_PURCHASE_IMAGE,
     note: "クリーム / ソフトタッチ"
   },
   {
     id: "manual-5",
     title: "モビー シンプルラインT",
-    price: 3000,
+    price: 5000,
     image: DEFAULT_PURCHASE_IMAGE,
     note: "アイボリー / ベーシック"
   }
