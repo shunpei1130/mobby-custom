@@ -1259,55 +1259,50 @@ const DEFAULT_PURCHASE_IMAGE = "assets/templates/tshirt.png";
 const MANUAL_PURCHASE_ITEMS = [
   {
     id: "manual-1",
-    title: "モビー サンライズT",
+    title: "イカチ―・パコ",
     price: 3200,
     image: "assets/ikati/イカチ―・パコ1.png",
     images: [
       "assets/ikati/イカチ―・パコ1.png",
       "assets/ikati/イカチ―・パコ2.png"
     ],
-    note: "ホワイト / コットン100%",
-    tag: "サンプル"
+    note: "スウェット・パンツ S/M/L"
   },
   {
     id: "manual-2",
-    title: "モビー ポップロゴT",
+    title: "イカチ―・ピコ",
     price: 3300,
     image: "assets/ikati/イカチ―・ピコ1.png",
     images: [
       "assets/ikati/イカチ―・ピコ1.png",
       "assets/ikati/イカチ―・ピコ2.png"
     ],
-    note: "ピーチ / ライトオンス",
-    tag: "サンプル"
+    note: "スウェット・パンツ S/M/L"
   },
   {
     id: "manual-3",
-    title: "モビー ナイトスカイT",
+    title: "イカチー・ンコ",
     price: 3500,
     image: "assets/ikati/イカチー・ンコ1.png",
     images: [
       "assets/ikati/イカチー・ンコ1.png",
       "assets/ikati/イカチー・ンコ2.png"
     ],
-    note: "ネイビー / ビッグシルエット",
-    tag: "サンプル"
+    note: "スウェット・パンツ S/M/L"
   },
   {
     id: "manual-4",
     title: "モビー リボンT",
     price: 3100,
     image: DEFAULT_PURCHASE_IMAGE,
-    note: "クリーム / ソフトタッチ",
-    tag: "サンプル"
+    note: "クリーム / ソフトタッチ"
   },
   {
     id: "manual-5",
     title: "モビー シンプルラインT",
     price: 3000,
     image: DEFAULT_PURCHASE_IMAGE,
-    note: "アイボリー / ベーシック",
-    tag: "サンプル"
+    note: "アイボリー / ベーシック"
   }
 ];
 
@@ -1517,6 +1512,9 @@ function renderManualPurchaseItems() {
   if (!purchaseManualGrid) return;
   purchaseManualGrid.innerHTML = "";
   for (const item of MANUAL_PURCHASE_ITEMS) {
+    if (item.id === "manual-4" || item.id === "manual-5") {
+      continue;
+    }
     const badges = item.tag ? [{ text: item.tag, className: "purchaseTag" }] : [];
     const card = createPurchaseCard({
       title: item.title,
